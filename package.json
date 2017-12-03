@@ -9,7 +9,6 @@
     "start": "node_modules/.bin/babel-node twitter-simulator.js"
   },
   "dependencies": {
-    "express": "^4.16.2",
     "twitter-node-client": "0.0.6"
   },
   "devDependencies": {
