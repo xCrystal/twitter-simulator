@@ -1,6 +1,7 @@
 import { Twitter } from 'twitter-node-client'
 import config from './twitter-config'
-import words from './words.js'
+import H from './helpers'
+import words from './words'
 
 const T = new Twitter(config);
 const error = (err) => {
@@ -22,21 +23,17 @@ const success = (data) => {
 
 const rnd = () => Math.random();
 const days = (n) => 1000 * 60 * 60 * 24 * n;
-let delta = Math.min(rnd(), rnd()) * days(9);
+let delta = H.random(days(10), 0, -2);
 let curTime = new Date().getTime();
-let word = '"' + words[
-  Math.floor(
-    Math.min(rnd(), rnd(), rnd(), rnd()) * words.length
-  )
-] + '\u0020"';
+let word = '"' + words[H.randomDiscrete(words.length, 0, -4)] + '\u0020"';
 console.log("THE WORD IS", word, ".");
 
 T.getSearch({
   "q": word + " AND -filter:retweets",
   "lang": "en",
   "since": new Date(curTime - delta),
-  "until": new Date(curTime - delta + days(1)),
+  "until": new Date(curTime - delta + days(3)),
   "result_type": "popular",
   "tweet_mode": "extended",
-  "count": 8
+  "count": 100
 }, error, success);
