@@ -1,6 +1,10 @@
 import s from 'underscore.string'
 
+const MAX_CHARS = 280;
+
 export default {
+
+  /* Random */
 
   random: function(max, min = 0, bias = false) {
 
@@ -26,7 +30,7 @@ export default {
     return Math.floor(this.random(max, min, bias));
   },
 
-  timeInterval: function() {
+  randomTimeInterval: function() {
     const days = (n) => 1000 * 60 * 60 * 24 * n;
     let delta = this.random(days(10), 0, -2);
     let curTime = new Date().getTime();
@@ -35,6 +39,8 @@ export default {
       "until": new Date(curTime - delta + days(3)),
     };
   },
+
+  /* String */
 
   clean: function(str) {
     return s.clean(str);
@@ -46,17 +52,36 @@ export default {
 
   demention: function(str) {
     return s.map(str, (x) => {
-      if(x === '@') x = '';
+      if(x === '@') x = '@·';
       return x;
     });
   },
 
+  strUntil: function(str, word, withinFirst = MAX_CHARS) {
+    word = ' ' + word + ' ';
+    let _str = s.strLeft(str, word);
+    let foundWithin = s.count(_str, " ") + s.count(_str, "\n");
+    return ((_str === str || foundWithin >= withinFirst) ? "" : _str + word);
+  },
+
+  strFrom: function(str, word, withinLast = MAX_CHARS) {
+    word = ' ' + word + ' ';
+    let _str = s.strRightBack(str, word);
+    let foundWithin = s.count(_str, " ") + s.count(_str, "\n");
+    return ((_str === str || foundWithin >= withinLast) ? "" : _str);
+  },
+
+  /* Array */
+
   popRandom: function(list) {
+    let element = false;
     let length = list.length;
-    let index = randomDiscrete(length);
-    let element = list[index];
-    list[index] = list[length - 1];
-    list.pop();
+    if (length) {
+      let index = randomDiscrete(length);
+      element = list[index];
+      list[index] = list[length - 1];
+      list.pop();
+    }
     return element;
   },
 
