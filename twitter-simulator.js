@@ -1,12 +1,17 @@
 import { Twitter } from 'twitter-node-client'
 import config from './twitter-config'
 import H from './helpers'
-import words from './words'
+import commonWords from './words'
 
 const T = new Twitter(config);
 
 let interval = H.randomTimeInterval();
-let word = words[H.randomDiscrete(words.length, 0, -4)];
+let word = '';
+let i = 0;
+do {
+  i = H.randomDiscrete((commonWords.length * 2), 0, -5);
+} while (i > commonWords.length - 1);
+word = commonWords[i];
 console.log("THE WORD IS", word, ".");
 
 const error = (err) => {
@@ -21,6 +26,7 @@ const success = (data) => {
     text = H.demention(text);
     let textUntil = H.strUntil(text, word, 10);
     let textFrom = H.strFrom(text, word, 10);
+    let textBetween = H.strBetween(text, word, H.randomDiscrete(10, 1), 12);
     console.log(
       "********************************************************************\n",
       "ID:", status.id_str, "\n",
@@ -29,7 +35,8 @@ const success = (data) => {
       "By:", status.user.name, "\n",
       "(*)", text, "\n",
       "(*)", textUntil, "\n",
-      "(*)", textFrom,
+      "(*)", textFrom, "\n",
+      "(*)", textBetween,
     )
   }
 };
