@@ -44,25 +44,29 @@ const getTweetThird = async (
 ) => {
   let time = H.randomTimeInterval();
   let tweets = await search(word, time.since, time.until, "popular", 100);
-  let output = sampleFormatTweet(tweets);
-  if (!output) return false;
+  let output = "";
 
-  switch (whichThird) {
-    case "first":
-      output = H.strUntil(output, word, MAX_STRLEN);
-      break;
-    case "second":
-      let minLen = H.randomDiscrete(MAX_STRLEN, 1);
-      output = H.strBetween(output, word, minLen, MAX_FORCED_STRLEN);
-      break;
-    case "third":
-      output = H.strFrom(output, word, MAX_STRLEN);
-      break;
-    default:
-      output = "";
-  }
-  if (output) console.log("(*", whichThird, "*)", output);
-  return output || false;
+  do {
+    output = sampleFormatTweet(tweets);
+    if (!output) return false;
+    switch (whichThird) {
+      case "first":
+        output = H.strUntil(output, word, MAX_STRLEN);
+        break;
+      case "second":
+        let minLen = H.randomDiscrete(MAX_STRLEN, 1);
+        output = H.strBetween(output, word, minLen, MAX_FORCED_STRLEN);
+        break;
+      case "third":
+        output = H.strFrom(output, word, MAX_STRLEN);
+        break;
+      default:
+        output = "";
+    }
+    if (output) console.log("(*", whichThird, "*)", output);
+  } while (!output);
+
+  return output;
 };
 
 const generateTweet = async () => {
@@ -77,7 +81,6 @@ const generateTweet = async () => {
     i = H.randomDiscrete((commonWords.length * 2), 0, -5);
   } while (i > commonWords.length - 1);
   word = commonWords[i];
-  console.log("THE WORD IS", word, ".");
 
   firstOut = await getTweetThird(word, "first");
   if (!firstOut) return false;
@@ -99,6 +102,7 @@ const generateTweet = async () => {
   do {
     try {
       tweet = await generateTweet();
+      //if (tweet) await T.post("statuses/update", { status: tweet });
       console.log(tweet);
     } catch (err) {
       console.error("ERROR: ", err);
