@@ -92,7 +92,7 @@ export default {
       let closingWord = ar[nextWordAt];
       if (commonWords.indexOf(closingWord) > -1) {
         _str = S.strLeft(_str, closingWord);
-        return { str: _str + closingWord, word: closingWord };
+        return { str: _str + closingWord + " ", word: closingWord };
       }
       nextWordAt ++;
     } while (ar.length > nextWordAt);
@@ -111,6 +111,7 @@ export default {
       array[index] = array[length - 1];
       array.pop();
     }
+    return element;
   },
 
 }

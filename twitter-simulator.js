@@ -26,7 +26,6 @@ const search = async (word, since, until, type = "popular", count = 100) => {
 };
 
 const sampleFormatTweet = (tweets) => {
-  console.log(1);
   let tweet = H.popRandom(tweets.statuses);
   let text = "";
   if (tweet) {
@@ -54,10 +53,10 @@ const getTweetThird = async (
       break;
     case "second":
       let minLen = H.randomDiscrete(MAX_STRLEN, 1);
-      output = H.strBetween(text, word, minLen, MAX_FORCED_STRLEN);
+      output = H.strBetween(output, word, minLen, MAX_FORCED_STRLEN);
       break;
     case "third":
-      output = H.strFrom(text, word, MAX_STRLEN);
+      output = H.strFrom(output, word, MAX_STRLEN);
       break;
     default:
       output = "";
@@ -100,7 +99,7 @@ const generateTweet = async () => {
   do {
     try {
       tweet = await generateTweet();
-      console.log(2);
+      console.log(tweet);
     } catch (err) {
       console.error("ERROR: ", err);
     }
