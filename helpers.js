@@ -1,8 +1,7 @@
 import S from 'underscore.string'
 
 import commonWords from './words'
-
-const MAX_CHARS = 280;
+import C from './constants'
 
 export default {
 
@@ -60,7 +59,7 @@ export default {
   },
 
   /* Returns falsey if no applicable match */
-  strUntil: function (str, word, withinFirst = MAX_CHARS) {
+  strUntil: function (str, word, withinFirst = C.MAX_CHARS) {
     word = " " + word + " ";
     let _str = S.strLeft(str, word);
     let foundWithin = S.count(_str, " ") + S.count(_str, "\n");
@@ -68,7 +67,7 @@ export default {
   },
 
   /* Returns falsey if no applicable match */
-  strFrom: function (str, word, withinLast = MAX_CHARS) {
+  strFrom: function (str, word, withinLast = C.MAX_CHARS) {
     word = " " + word + " ";
     let _str = S.strRightBack(str, word);
     let foundWithin = S.count(_str, " ") + S.count(_str, "\n");
@@ -81,18 +80,20 @@ export default {
     str,
     word,
     nextWordAt, /* translates to min length, an to ~(avg_len - 1) */
-    beforeLast = MAX_CHARS, /* translates to max length */
+    beforeLast = C.MAX_CHARS, /* translates to max length */
   ) {
     word = " " + word + " ";
     let _str = S.strRight(str, word);
     let foundBefore = S.count(_str, " ") + S.count(_str, "\n");
-    if (_str === str || foundBefore < beforeLast) return "";
+    if (_str === str || foundBefore > beforeLast) return "";
     let ar = S.words(_str, " ");
     do {
       let closingWord = ar[nextWordAt];
       if (commonWords.indexOf(closingWord) > -1) {
-        _str = S.strLeft(_str, closingWord);
-        return { str: _str + closingWord + " ", word: closingWord };
+        _str = S.strLeft(_str, " " + closingWord + " ");
+        if (_str !== str) {
+          return { str: _str + " " + closingWord + " ", word: closingWord };
+        }
       }
       nextWordAt ++;
     } while (ar.length > nextWordAt);

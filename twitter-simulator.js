@@ -1,12 +1,11 @@
 import Twitter from 'twitter'
+
 import config from './twitter-config'
 import H from './helpers'
 import commonWords from './words'
+import C from './constants'
 
 const T = new Twitter(config);
-
-const MAX_STRLEN = 12;
-const MAX_FORCED_STRLEN = 16;
 
 const search = async (word, since, until, type = "popular", count = 100) => {
   try {
@@ -39,8 +38,8 @@ const sampleFormatTweet = (tweets) => {
 const getTweetThird = async (
   word,
   whichThird,
-  maxLen = MAX_STRLEN,
-  maxForcedLen = MAX_FORCED_STRLEN
+  maxLen = C.MAX_STRLEN,
+  maxForcedLen = C.MAX_FORCED_STRLEN
 ) => {
   let time = H.randomTimeInterval();
   let tweets = await search(word, time.since, time.until, "popular", 100);
@@ -51,14 +50,14 @@ const getTweetThird = async (
     if (!output) return false;
     switch (whichThird) {
       case "first":
-        output = H.strUntil(output, word, MAX_STRLEN);
+        output = H.strUntil(output, word, maxLen);
         break;
       case "second":
-        let minLen = H.randomDiscrete(MAX_STRLEN, 1);
-        output = H.strBetween(output, word, minLen, MAX_FORCED_STRLEN);
+        let minLen = H.randomDiscrete(maxLen, 1);
+        output = H.strBetween(output, word, minLen, maxForcedLen);
         break;
       case "third":
-        output = H.strFrom(output, word, MAX_STRLEN);
+        output = H.strFrom(output, word, maxLen);
         break;
       default:
         output = "";
@@ -94,7 +93,7 @@ const generateTweet = async () => {
   thirdOut = await getTweetThird(word2, "third");
   if (!thirdOut) return false;
   tweet += thirdOut;
-  return tweet;
+  return (tweet.length < C.MAX_CHARS ? tweet : false);
 };
 
 (async () => {
