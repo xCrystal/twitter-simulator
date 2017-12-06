@@ -9,6 +9,8 @@
     "start": "node_modules/.bin/babel-node twitter-simulator.js"
   },
   "dependencies": {
+    "fetch-base64": "^2.0.0",
+    "giphy-api": "^1.2.7",
     "twitter": "^1.7.1",
     "underscore.string": "^3.3.4"
   },

@@ -1,4 +1,6 @@
 import Twitter from 'twitter'
+import Giphy from 'giphy-api'
+import fetch from 'fetch-base64'
 
 import config from './twitter-config'
 import H from './helpers'
@@ -6,22 +8,18 @@ import commonWords from './words'
 import C from './constants'
 
 const T = new Twitter(config);
+const G = Giphy("dc6zaTOxFJmzC");
 
 const search = async (word, since, until, type = "popular", count = 100) => {
-  try {
-    let result = await T.get("search/tweets", {
-      "q": word + " AND -filter:retweets",
-      "lang": "en",
-      "since": since,
-      "until": until,
-      "result_type": type,
-      "tweet_mode": "extended",
-      "count": count
-    });
-    return result;
-  } catch (err) {
-    console.error("ERROR: ", err);
-  }
+  return await T.get("search/tweets", {
+    "q": word + " AND -filter:retweets",
+    "lang": "en",
+    "since": since,
+    "until": until,
+    "result_type": type,
+    "tweet_mode": "extended",
+    "count": count
+  });
 };
 
 const sampleFormatTweet = (tweets) => {
@@ -96,13 +94,51 @@ const generateTweet = async () => {
   return (tweet.length < C.MAX_CHARS ? tweet : false);
 };
 
+const uploadGifToTwitter = async (base64) => {
+  let gif = new Buffer(base64[0], "base64");
+  let gifId = (await T.post("media/upload", {
+    "command": "INIT",
+    "total_bytes": gif.length,
+    "media_type": "image/gif",
+  })).media_id_string;
+
+  await T.post("media/upload", {
+    "command": "APPEND",
+    "media_id": gifId,
+    "media": gif,
+    "segment_index": 0,
+  });
+
+  await T.post("media/upload", {
+    "command": "FINALIZE",
+    "media_id": gifId,
+  });
+  return gifId;
+};
+
+const generateGif = async () => {
+  let gif = await G.search("pokemon"); //TODO
+  let data = gif.data;
+  let i = H.randomDiscrete(data.length - 1, 0, -2);
+  let url = data[i].images.fixed_height.url;
+  let base64 = await fetch.remote(url);
+  return await uploadGifToTwitter(base64);
+};
+
 (async () => {
   let tweet = false;
+  let gifId = false;
   do {
     try {
       tweet = await generateTweet();
-      //if (tweet) await T.post("statuses/update", { status: tweet });
-      console.log(tweet);
+      gifId = await generateGif();
+      if (tweet && gifId) {
+        await T.post("statuses/update", {
+          "status": tweet,
+          "media_ids": gifId,
+        });
+        console.log("(*** TWEET ***)", tweet);
+      };
     } catch (err) {
       console.error("ERROR: ", err);
     }
