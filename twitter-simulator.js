@@ -8,7 +8,7 @@ import commonWords from './words'
 import C from './constants'
 
 const T = new Twitter(config);
-const G = Giphy("dc6zaTOxFJmzC");
+const G = Giphy("dc6zaTOxFJmzC"); //TODO
 
 const search = async (word, since, until, type = "popular", count = 100) => {
   return await T.get("search/tweets", {
@@ -29,40 +29,57 @@ const sampleFormatTweet = (tweets) => {
     text = H.clean(tweet.full_text);
     text = H.deleteLink(text);
     text = H.demention(text);
+    tweet = { "text": text, "id": tweet.id_str };
   }
-  return text;
+  return tweet;
 };
 
 const getTweetThird = async (
   word,
   whichThird,
+  // Prevent the same tweet from being picked
+  discardIds = [],
   maxLen = C.MAX_STRLEN,
-  maxForcedLen = C.MAX_FORCED_STRLEN
+  maxForcedLen = C.MAX_FORCED_STRLEN,
+  // Tweets with mentions or hashtags tend to lead to unfunnier results,
+  // so slightly discourage them.
+  maxSpecialDiscards = 2
 ) => {
   let time = H.randomTimeInterval();
   let tweets = await search(word, time.since, time.until, "popular", 100);
   let output = "";
+  let text = "";
+  let id = "";
 
   do {
-    output = sampleFormatTweet(tweets);
-    if (!output) return false;
+    do {
+      output = sampleFormatTweet(tweets);
+      text = output.text;
+      id = output.id;
+    } while (
+      discardIds.indexOf(id) > -1 ||
+      maxSpecialDiscards -- > 0 &&
+      (text.indexOf("@") > -1 || text.indexOf("#") > -1)
+    );
+    if (!text) return false;
     switch (whichThird) {
       case "first":
-        output = H.strUntil(output, word, maxLen);
+        output = H.strUntil(text, word, maxLen);
         break;
       case "second":
         let minLen = H.randomDiscrete(maxLen, 1);
-        output = H.strBetween(output, word, minLen, maxForcedLen);
+        output = H.strBetween(text, word, minLen, maxForcedLen);
         break;
       case "third":
-        output = H.strFrom(output, word, maxLen);
+        output = H.strFrom(text, word, maxLen);
         break;
       default:
         output = "";
     }
-    if (output) console.log("(*", whichThird, "*)", output);
   } while (!output);
 
+  output.id = id;
+  console.log("(*", whichThird, "*)", output.text);
   return output;
 };
 
@@ -81,16 +98,16 @@ const generateTweet = async () => {
 
   firstOut = await getTweetThird(word, "first");
   if (!firstOut) return false;
-  tweet += firstOut;
+  tweet += firstOut.text;
 
-  secondOut = await getTweetThird(word, "second");
+  secondOut = await getTweetThird(word, "second", firstOut.id);
   if (!secondOut) return false;
-  tweet += secondOut.str;
+  tweet += secondOut.text;
   word2 = secondOut.word;
 
-  thirdOut = await getTweetThird(word2, "third");
+  thirdOut = await getTweetThird(word2, "third", [firstOut.id, secondOut.id]);
   if (!thirdOut) return false;
-  tweet += thirdOut;
+  tweet += thirdOut.text;
   return (tweet.length < C.MAX_CHARS ? tweet : false);
 };
 

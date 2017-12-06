@@ -59,19 +59,29 @@ export default {
   },
 
   /* Returns falsey if no applicable match */
+  /* Otherwise returns the resulting string in an object */
   strUntil: function (str, word, withinFirst = C.MAX_CHARS) {
     word = " " + word + " ";
     let _str = S.strLeft(str, word);
     let foundWithin = S.count(_str, " ") + S.count(_str, "\n");
-    return ((_str === str || foundWithin >= withinFirst) ? "" : _str + word);
+    return (
+      _str === str || foundWithin >= withinFirst ?
+      "" :
+      { "text": _str + word }
+    );
   },
 
   /* Returns falsey if no applicable match */
+  /* Otherwise returns the resulting string in an object */
   strFrom: function (str, word, withinLast = C.MAX_CHARS) {
     word = " " + word + " ";
     let _str = S.strRightBack(str, word);
     let foundWithin = S.count(_str, " ") + S.count(_str, "\n");
-    return ((_str === str || foundWithin >= withinLast) ? "" : _str);
+    return (
+      _str === str || foundWithin >= withinLast ?
+      "" :
+      { "text": _str }
+    );
   },
 
   /* Returns falsey if no applicable match */
@@ -92,7 +102,7 @@ export default {
       if (commonWords.indexOf(closingWord) > -1) {
         _str = S.strLeft(_str, " " + closingWord + " ");
         if (_str !== str) {
-          return { str: _str + " " + closingWord + " ", word: closingWord };
+          return { text: _str + " " + closingWord + " ", word: closingWord };
         }
       }
       nextWordAt ++;
