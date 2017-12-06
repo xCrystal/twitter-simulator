@@ -1,15 +1,16 @@
 import Twitter from 'twitter'
 import Giphy from 'giphy-api'
 import fetch from 'fetch-base64'
-import decode from 'unescape'
+import S from 'underscore.string'
 
-import config from './twitter-config'
+import config from './config'
 import H from './helpers'
-import commonWords from './words'
+import twitterwords from './twitter-words'
+import stopwords from './stopwords'
 import C from './constants'
 
-const T = new Twitter(config);
-const G = Giphy("dc6zaTOxFJmzC"); //TODO
+const T = new Twitter(config.twitter);
+const G = Giphy(config.giphy.key);
 
 const search = async (word, since, until, type = "popular", count = 100) => {
   return await T.get("search/tweets", {
@@ -93,9 +94,9 @@ const generateTweet = async () => {
   let thirdOut = "";
   let i = 0;
   do {
-    i = H.randomDiscrete((commonWords.length * 2), 0, -5);
-  } while (i > commonWords.length - 1);
-  word = commonWords[i];
+    i = H.randomDiscrete((twitterwords.length * 2), 0, -5);
+  } while (i > twitterwords.length - 1);
+  word = twitterwords[i];
 
   firstOut = await getTweetThird(word, "first");
   if (!firstOut) return false;
@@ -109,13 +110,12 @@ const generateTweet = async () => {
   thirdOut = await getTweetThird(word2, "third", [firstOut.id, secondOut.id]);
   if (!thirdOut) return false;
   tweet += thirdOut.text;
-  tweet = decode(tweet);
+  tweet = S.unescapeHTML(tweet);
   return (tweet.length < C.MAX_CHARS ? tweet : false);
 };
 
 const uploadGifToTwitter = async (base64) => {
   let gif = new Buffer(base64[0], "base64");
-  console.log(gif.length)
   let gifId = (await T.post("media/upload", {
     "command": "INIT",
     "total_bytes": gif.length,
@@ -136,14 +136,34 @@ const uploadGifToTwitter = async (base64) => {
   return gifId;
 };
 
-const generateGif = async () => {
-  let gif = await G.search("door elephant phone"); //TODO
+const createGifKeywords = (text) => {
+  text = text.replace(/\@|\#/g, "");
+  let array = text.toLowerCase().split("\n").join(" ").split(" ");
+  let keywords = "";
+  for (let i = 0; i < 3; i ++) {
+    let keyword = H.popRandom(array);
+    if (stopwords.indexOf(keyword) === -1) {
+      keywords += keyword + " ";
+    } else {
+      i --;
+    }
+  }
+  return keywords;
+}
+
+const generateGif = async (tweet) => {
+  let keywords = createGifKeywords(tweet);
+  console.log("(*** Keywords ***)", keywords);
+  let gif = await G.search({ "q": keywords, "rating": "pg-13" });
   let data = gif.data;
-  let i = H.randomDiscrete(data.length - 1, 0, -2);
-  let url = data[i].images.fixed_height.url;
-  let base64 = await fetch.remote(url);
-  console.log("(*** MEDIA ***)", url);
-  return await uploadGifToTwitter(base64);
+  if (data.length && data[0].hasOwnProperty("images")) {
+    let i = H.randomDiscrete(data.length - 1, 0, -2);
+    let url = data[i].images.fixed_height.url;
+    let base64 = await fetch.remote(url);
+    console.log("(*** MEDIA ***)", url);
+    return await uploadGifToTwitter(base64);
+  }
+  return false;
 };
 
 (async () => {
@@ -152,7 +172,7 @@ const generateGif = async () => {
   do {
     try {
       tweet = await generateTweet();
-      if (tweet) gifId = await generateGif();
+      if (tweet) gifId = await generateGif(tweet);
       if (tweet && gifId) {
         await T.post("statuses/update", {
           "status": tweet,
@@ -163,5 +183,5 @@ const generateGif = async () => {
     } catch (err) {
       console.error("ERROR: ", err);
     }
-  } while (!tweet);
+  } while (!tweet || !gifId);
 }) ();

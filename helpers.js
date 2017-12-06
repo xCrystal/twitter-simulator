@@ -1,6 +1,6 @@
 import S from 'underscore.string'
 
-import commonWords from './words'
+import twitterwords from './twitter-words'
 import C from './constants'
 
 export default {
@@ -99,7 +99,7 @@ export default {
     let ar = S.words(_str, " ");
     do {
       let closingWord = ar[nextWordAt];
-      if (commonWords.indexOf(closingWord) > -1) {
+      if (twitterwords.indexOf(closingWord) > -1) {
         _str = S.strLeft(_str, " " + closingWord + " ");
         if (_str !== str) {
           return { text: _str + " " + closingWord + " ", word: closingWord };
