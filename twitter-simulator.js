@@ -137,12 +137,12 @@ const uploadGifToTwitter = async (base64) => {
 };
 
 const createGifKeywords = (text) => {
-  text = text.replace(/\@|\#/g, "");
+  text = text.replace(/[^A-Za-z ]/g, "");
   let array = text.toLowerCase().split("\n").join(" ").split(" ");
   let keywords = "";
   for (let i = 0; i < 3; i ++) {
     let keyword = H.popRandom(array);
-    if (stopwords.indexOf(keyword) === -1) {
+    if (keyword && stopwords.indexOf(keyword) === -1) {
       keywords += keyword + " ";
     } else {
       i --;
