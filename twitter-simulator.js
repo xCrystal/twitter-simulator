@@ -1,6 +1,7 @@
 import Twitter from 'twitter'
 import Giphy from 'giphy-api'
 import fetch from 'fetch-base64'
+import decode from 'unescape'
 
 import config from './twitter-config'
 import H from './helpers'
@@ -108,11 +109,13 @@ const generateTweet = async () => {
   thirdOut = await getTweetThird(word2, "third", [firstOut.id, secondOut.id]);
   if (!thirdOut) return false;
   tweet += thirdOut.text;
+  tweet = decode(tweet);
   return (tweet.length < C.MAX_CHARS ? tweet : false);
 };
 
 const uploadGifToTwitter = async (base64) => {
   let gif = new Buffer(base64[0], "base64");
+  console.log(gif.length)
   let gifId = (await T.post("media/upload", {
     "command": "INIT",
     "total_bytes": gif.length,
@@ -134,11 +137,12 @@ const uploadGifToTwitter = async (base64) => {
 };
 
 const generateGif = async () => {
-  let gif = await G.search("pokemon"); //TODO
+  let gif = await G.search("door elephant phone"); //TODO
   let data = gif.data;
   let i = H.randomDiscrete(data.length - 1, 0, -2);
   let url = data[i].images.fixed_height.url;
   let base64 = await fetch.remote(url);
+  console.log("(*** MEDIA ***)", url);
   return await uploadGifToTwitter(base64);
 };
 
@@ -148,7 +152,7 @@ const generateGif = async () => {
   do {
     try {
       tweet = await generateTweet();
-      gifId = await generateGif();
+      if (tweet) gifId = await generateGif();
       if (tweet && gifId) {
         await T.post("statuses/update", {
           "status": tweet,
