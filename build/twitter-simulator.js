@@ -575,85 +575,87 @@ var postTweet = function () {
               break;
             }
 
-            return _context8.abrupt('continue', 34);
+            return _context8.abrupt('continue', 35);
 
           case 9:
+            if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
+
             if (!(rand < 0.15)) {
-              _context8.next = 15;
+              _context8.next = 16;
               break;
             }
 
-            _context8.next = 12;
+            _context8.next = 13;
             return generateGif(tweet);
 
-          case 12:
+          case 13:
             mediaId = _context8.sent;
-            _context8.next = 19;
+            _context8.next = 20;
             break;
 
-          case 15:
+          case 16:
             if (!(rand < 0.4)) {
-              _context8.next = 19;
+              _context8.next = 20;
               break;
             }
 
-            _context8.next = 18;
+            _context8.next = 19;
             return generateImgur(tweet);
 
-          case 18:
+          case 19:
             mediaId = _context8.sent;
 
-          case 19:
+          case 20:
             if (!(tweet && !mediaId)) {
-              _context8.next = 24;
+              _context8.next = 25;
               break;
             }
 
-            _context8.next = 22;
+            _context8.next = 23;
             return T.post("statuses/update", {
               "status": tweet
             });
 
-          case 22:
-            _context8.next = 27;
+          case 23:
+            _context8.next = 28;
             break;
 
-          case 24:
+          case 25:
             if (!(tweet && mediaId)) {
-              _context8.next = 27;
+              _context8.next = 28;
               break;
             }
 
-            _context8.next = 27;
+            _context8.next = 28;
             return T.post("statuses/update", {
               "status": tweet,
               "media_ids": mediaId
             });
 
-          case 27:
+          case 28:
             ;
             console.log("(*** TWEET ***)", tweet);
-            _context8.next = 34;
+            _context8.next = 35;
             break;
 
-          case 31:
-            _context8.prev = 31;
+          case 32:
+            _context8.prev = 32;
             _context8.t0 = _context8['catch'](3);
 
             console.error("ERROR: ", _context8.t0);
 
-          case 34:
+          case 35:
             if (!tweet) {
               _context8.next = 3;
               break;
             }
 
-          case 35:
+          case 36:
           case 'end':
             return _context8.stop();
         }
       }
-    }, _callee8, undefined, [[3, 31]]);
+    }, _callee8, undefined, [[3, 32]]);
   }));
 
   return function postTweet() {

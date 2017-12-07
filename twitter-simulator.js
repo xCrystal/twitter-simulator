@@ -264,6 +264,7 @@ const postTweet = async () => {
     try {
       tweet = await generateTweet();
       if (!tweet) continue;
+      if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
       if (rand < 0.15) {
         mediaId = await generateGif(tweet);
       } else if (rand < 0.4) {
