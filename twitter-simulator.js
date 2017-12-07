@@ -1,3 +1,5 @@
+require("babel-polyfill");
+import http from 'http'
 import Twitter from 'twitter'
 import Giphy from 'giphy-api'
 import fetch from 'node-fetch'
@@ -8,6 +10,9 @@ import H from './helpers'
 import twitterwords from './twitter-words'
 import stopwords from './stopwords'
 import C from './constants'
+
+const PORT = process.env.PORT || 8080;
+http.createServer().listen(PORT);
 
 let CONFIG = {};
 try {
