@@ -178,6 +178,7 @@ const generateImgur = async (tweet) => {
   };
   let keywords = createMediaKeywords(tweet).split(" ");
   if (keywords.length < 3) return false;
+
   let results = await Promise.all([
     req(keywords[0]),
     req(keywords[1]),
@@ -190,23 +191,34 @@ const generateImgur = async (tweet) => {
   let res2l = res2.data.total_items;
   let res3l = res3.data.total_items;
   if (!res1l && !res2l && !res3l) return false;
+
   let result = {};
   let getImage = (res) => {
     let result = false;
     if (res.data.hasOwnProperty("items") && res.data.items.length) {
       let items = res.data.items;
-      let i = H.randomDiscrete(items.length);
-      if (!items[i] || items[i].nsfw) {
-        return false;
-      }
-      if (items[i].is_album && items[i].hasOwnProperty("images")) {
-        result = items[i].images[0];
-      } else if (items[i].hasOwnProperty("link")) {
-        result = items[i];
+      let currentScore = 0, targetScore = 1000;
+      let item = {};
+      do {
+      // This serves a double purpose: favor popular media, and discard
+      // results with low overall interaction volume.
+        item = H.popRandom(items);
+        if (!item) return false;
+        if (item.nsfw) continue;
+        let tf =
+          Math.cbrt((new Date().getTime() - item.datetime * 1000) / 60000);
+        let sf = item.ups + item.views / 20;
+        currentScore += Math.max(Math.floor(sf - tf), 0);
+      } while (currentScore <= targetScore);
+      if (item.is_album && item.hasOwnProperty("images")) {
+        result = item.images[0];
+      } else if (item.hasOwnProperty("link")) {
+        result = item;
       }
     }
-    return result; //TODO filter by enough views/likes
+    return result;
   };
+
   if (res1l > res2l && res1l > res3l) {
     result = getImage(res1);
   } else if (res2l > res3l) {
