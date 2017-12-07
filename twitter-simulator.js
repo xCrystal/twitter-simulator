@@ -200,13 +200,12 @@ const generateImgur = async (tweet) => {
         return false;
       }
       if (items[i].is_album && items[i].hasOwnProperty("images")) {
-        //return false;
         result = items[i].images[0];
       } else if (items[i].hasOwnProperty("link")) {
-        result = items[i].link; //xxx
+        result = items[i];
       }
     }
-    return result;
+    return result; //TODO filter by enough views/likes
   };
   if (res1l > res2l && res1l > res3l) {
     result = getImage(res1);
