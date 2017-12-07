@@ -228,25 +228,36 @@ const generateImgur = async (tweet) => {
   }
   if (!result) return false;
   let base64 = await fetchBase64.remote(result.link);
+  console.log("(*** MEDIA ***)", result.link);
   return await uploadMediaToTwitter(base64, result.type);
 };
 
 (async () => {
   let tweet = false;
   let mediaId = false;
+  let rand = H.random(1);
   do {
     try {
       tweet = await generateTweet();
-      if (tweet) mediaId = await generateImgur(tweet);
-      if (tweet && mediaId) {
+      if (!tweet) continue;
+      if (rand < 0.15) {
+        mediaId = await generateGif(tweet);
+      } else if (rand < 0.4) {
+        mediaId = await generateImgur(tweet);
+      }
+      if (tweet && !mediaId) {
+        await T.post("statuses/update", {
+          "status": tweet,
+        });
+      } else if (tweet && mediaId) {
         await T.post("statuses/update", {
           "status": tweet,
           "media_ids": mediaId,
         });
-        console.log("(*** TWEET ***)", tweet);
       };
+      console.log("(*** TWEET ***)", tweet);
     } catch (err) {
       console.error("ERROR: ", err);
     }
-  } while (!tweet || !mediaId);
+  } while (!tweet);
 }) ();
