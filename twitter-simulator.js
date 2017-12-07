@@ -4,14 +4,33 @@ import fetch from 'node-fetch'
 import fetchBase64 from 'fetch-base64'
 import S from 'underscore.string'
 
-import config from './config'
 import H from './helpers'
 import twitterwords from './twitter-words'
 import stopwords from './stopwords'
 import C from './constants'
 
-const T = new Twitter(config.twitter);
-const G = Giphy(config.giphy.key);
+let CONFIG = {};
+try {
+  CONFIG = require("./config").CONFIG;
+} catch (e) {
+  CONFIG = {
+    "twitter": {
+      "consumer_key": process.env.TWITTER_CONSUMER_KEY,
+      "consumer_secret": process.env.TWITTER_CONSUMER_SECRET,
+      "access_token_key": process.env.TWITTER_ACCESS_TOKEN_KEY,
+      "access_token_secret": process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    },
+    "giphy": {
+      "key": process.env.GIPHY_KEY,
+    },
+    "imgur": {
+      "id": process.env.IMGUR_ID,
+    },
+  }
+}
+const T = new Twitter(CONFIG.twitter);
+const G = Giphy(CONFIG.giphy.id);
+const IMGUR_ID = CONFIG.imgur.id;
 
 const search = async (word, since, until, type = "popular", count = 100) => {
   return await T.get("search/tweets", {
@@ -170,7 +189,7 @@ const generateGif = async (tweet) => {
 
 const generateImgur = async (tweet) => {
   const IMGUR_URL = "https://api.imgur.com/3/gallery/t/";
-  const HEADER = { "Authorization": "Client-ID " + config.imgur.id }
+  const HEADER = { "Authorization": "Client-ID " + IMGUR_ID }
   const req = async (keyword) => {
     return await fetch(IMGUR_URL + keyword, {
       headers: HEADER
