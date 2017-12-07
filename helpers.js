@@ -112,9 +112,9 @@ export default {
 
   /* ARRAY */
 
-  /* Returns falsey if array empty */
+  /* Returns false if array empty */
   popRandom: function (array) {
-    let element = "";
+    let element = false;
     let length = array.length;
     if (length) {
       let index = this.randomDiscrete(length);

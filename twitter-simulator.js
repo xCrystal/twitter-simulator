@@ -1,6 +1,7 @@
 import Twitter from 'twitter'
 import Giphy from 'giphy-api'
-import fetch from 'fetch-base64'
+import fetch from 'node-fetch'
+import fetchBase64 from 'fetch-base64'
 import S from 'underscore.string'
 
 import config from './config'
@@ -142,28 +143,68 @@ const createGifKeywords = (text) => {
   let keywords = "";
   for (let i = 0; i < 3; i ++) {
     let keyword = H.popRandom(array);
+    if (keyword === false) break;
     if (keyword && stopwords.indexOf(keyword) === -1) {
       keywords += keyword + " ";
     } else {
       i --;
     }
   }
+  console.log("(*** Keywords ***)", keywords);
   return keywords;
 }
 
 const generateGif = async (tweet) => {
   let keywords = createGifKeywords(tweet);
-  console.log("(*** Keywords ***)", keywords);
   let gif = await G.search({ "q": keywords, "rating": "pg-13" });
   let data = gif.data;
   if (data.length && data[0].hasOwnProperty("images")) {
-    let i = H.randomDiscrete(data.length - 1, 0, -2);
+    let i = H.randomDiscrete(data.length, 0, -2);
     let url = data[i].images.fixed_height.url;
-    let base64 = await fetch.remote(url);
+    let base64 = await fetchBase64.remote(url);
     console.log("(*** MEDIA ***)", url);
     return await uploadGifToTwitter(base64);
   }
   return false;
+};
+
+const generateImgur = async (tweet) => {
+  const IMGUR_URL = "https://api.imgur.com/3/gallery/t/";
+  const HEADER = { "Authorization": "Client-ID " + config.imgur.id }
+  const req = async (keyword) => {
+    return await fetch(IMGUR_URL + keyword, {
+      headers: HEADER
+    });
+  };
+  let keywords = createGifKeywords(tweet).split(" ");
+  if (keywords.length < 3) return false;
+  let results = await Promise.all([
+    req(keywords[0]),
+    req(keywords[1]),
+    req(keywords[2])
+  ]);
+  let res1 = await results[0].json();
+  let res2 = await results[1].json();
+  let res3 = await results[2].json();
+  let res1l = res1.data.total_items;
+  let res2l = res2.data.total_items;
+  let res3l = res3.data.total_items;
+  if (!res1l && !res2l && !res3l) return false;
+  let result = {};
+  let getImage = (res) => {
+    let items = res.data.items;
+    let i = H.randomDiscrete(items.length);
+    return !items[i].nsfw && items[i].images[0];
+  }
+  if (res1l > res2l && res1l > res3l) {
+    result = getImage(res1);
+  } else if (res2l > res3l) {
+    result = getImage(res2);
+  } else {
+    result = getImage(res3);
+  }
+  let base64 = await fetchBase64.remote(result.link);
+  return await uploadGifToTwitter(base64);
 };
 
 (async () => {
@@ -172,7 +213,7 @@ const generateGif = async (tweet) => {
   do {
     try {
       tweet = await generateTweet();
-      if (tweet) gifId = await generateGif(tweet);
+      if (tweet) gifId = await generateImgur(tweet);
       if (tweet && gifId) {
         await T.post("statuses/update", {
           "status": tweet,
