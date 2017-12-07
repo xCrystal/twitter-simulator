@@ -232,7 +232,7 @@ const generateImgur = async (tweet) => {
   return await uploadMediaToTwitter(base64, result.type);
 };
 
-(async () => {
+const postTweet = async () => {
   let tweet = false;
   let mediaId = false;
   let rand = H.random(1);
@@ -260,4 +260,8 @@ const generateImgur = async (tweet) => {
       console.error("ERROR: ", err);
     }
   } while (!tweet);
+};
+
+(async () => {
+  setInterval(postTweet, C.TIME_BETWEEN_TWEETS);
 }) ();
