@@ -115,29 +115,29 @@ const generateTweet = async () => {
   return (tweet.length < C.MAX_CHARS ? tweet : false);
 };
 
-const uploadGifToTwitter = async (base64) => {
-  let gif = new Buffer(base64[0], "base64");
-  let gifId = (await T.post("media/upload", {
+const uploadMediaToTwitter = async (base64, mimeType) => {
+  let media = new Buffer(base64[0], "base64");
+  let mediaId = (await T.post("media/upload", {
     "command": "INIT",
-    "total_bytes": gif.length,
-    "media_type": "image/gif",
+    "total_bytes": media.length,
+    "media_type": mimeType,
   })).media_id_string;
 
   await T.post("media/upload", {
     "command": "APPEND",
-    "media_id": gifId,
-    "media": gif,
+    "media_id": mediaId,
+    "media": media,
     "segment_index": 0,
   });
 
   await T.post("media/upload", {
     "command": "FINALIZE",
-    "media_id": gifId,
+    "media_id": mediaId,
   });
-  return gifId;
+  return mediaId;
 };
 
-const createGifKeywords = (text) => {
+const createMediaKeywords = (text) => {
   text = text.replace(/[^A-Za-z ]/g, "");
   let array = text.toLowerCase().split("\n").join(" ").split(" ");
   let keywords = "";
@@ -155,7 +155,7 @@ const createGifKeywords = (text) => {
 }
 
 const generateGif = async (tweet) => {
-  let keywords = createGifKeywords(tweet);
+  let keywords = createMediaKeywords(tweet);
   let gif = await G.search({ "q": keywords, "rating": "pg-13" });
   let data = gif.data;
   if (data.length && data[0].hasOwnProperty("images")) {
@@ -163,7 +163,7 @@ const generateGif = async (tweet) => {
     let url = data[i].images.fixed_height.url;
     let base64 = await fetchBase64.remote(url);
     console.log("(*** MEDIA ***)", url);
-    return await uploadGifToTwitter(base64);
+    return await uploadMediaToTwitter(base64, "image/gif");
   }
   return false;
 };
@@ -176,7 +176,7 @@ const generateImgur = async (tweet) => {
       headers: HEADER
     });
   };
-  let keywords = createGifKeywords(tweet).split(" ");
+  let keywords = createMediaKeywords(tweet).split(" ");
   if (keywords.length < 3) return false;
   let results = await Promise.all([
     req(keywords[0]),
@@ -192,10 +192,22 @@ const generateImgur = async (tweet) => {
   if (!res1l && !res2l && !res3l) return false;
   let result = {};
   let getImage = (res) => {
-    let items = res.data.items;
-    let i = H.randomDiscrete(items.length);
-    return !items[i].nsfw && items[i].images[0];
-  }
+    let result = false;
+    if (res.data.hasOwnProperty("items") && res.data.items.length) {
+      let items = res.data.items;
+      let i = H.randomDiscrete(items.length);
+      if (!items[i] || items[i].nsfw) {
+        return false;
+      }
+      if (items[i].is_album && items[i].hasOwnProperty("images")) {
+        //return false;
+        result = items[i].images[0];
+      } else if (items[i].hasOwnProperty("link")) {
+        result = items[i].link; //xxx
+      }
+    }
+    return result;
+  };
   if (res1l > res2l && res1l > res3l) {
     result = getImage(res1);
   } else if (res2l > res3l) {
@@ -203,26 +215,27 @@ const generateImgur = async (tweet) => {
   } else {
     result = getImage(res3);
   }
+  if (!result) return false;
   let base64 = await fetchBase64.remote(result.link);
-  return await uploadGifToTwitter(base64);
+  return await uploadMediaToTwitter(base64, result.type);
 };
 
 (async () => {
   let tweet = false;
-  let gifId = false;
+  let mediaId = false;
   do {
     try {
       tweet = await generateTweet();
-      if (tweet) gifId = await generateImgur(tweet);
-      if (tweet && gifId) {
+      if (tweet) mediaId = await generateImgur(tweet);
+      if (tweet && mediaId) {
         await T.post("statuses/update", {
           "status": tweet,
-          "media_ids": gifId,
+          "media_ids": mediaId,
         });
         console.log("(*** TWEET ***)", tweet);
       };
     } catch (err) {
       console.error("ERROR: ", err);
     }
-  } while (!tweet || !gifId);
+  } while (!tweet || !mediaId);
 }) ();
