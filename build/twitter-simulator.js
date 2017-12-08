@@ -211,7 +211,7 @@ var getTweetThird = function () {
 
 var generateTweet = function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-    var tweet, word, word2, firstOut, secondOut, thirdOut, i;
+    var tweet, word, word2, firstOut, secondOut, thirdOut, i, text1, text2, text3, longest;
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
@@ -243,44 +243,63 @@ var generateTweet = function () {
             return _context3.abrupt('return', false);
 
           case 14:
-            tweet += firstOut.text;
+            text1 = firstOut.text;
 
-            _context3.next = 17;
+            tweet += text1;
+
+            _context3.next = 18;
             return getTweetThird(word, "second", firstOut.id);
 
-          case 17:
+          case 18:
             secondOut = _context3.sent;
 
             if (secondOut) {
-              _context3.next = 20;
+              _context3.next = 21;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 20:
-            tweet += secondOut.text;
+          case 21:
+            text2 = secondOut.text;
+
+            tweet += text2;
             word2 = secondOut.word;
 
-            _context3.next = 24;
+            _context3.next = 26;
             return getTweetThird(word2, "third", [firstOut.id, secondOut.id]);
 
-          case 24:
+          case 26:
             thirdOut = _context3.sent;
 
             if (thirdOut) {
-              _context3.next = 27;
+              _context3.next = 29;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 27:
-            tweet += thirdOut.text;
+          case 29:
+            text3 = thirdOut.text;
+
+            tweet += text3;
+
+            // Prevent tweets made almost exclusively of a single tweet
+            longest = Math.max(text1.split(" ").length, text2.split(" ").length, text3.split(" ").length);
+
+            if (!((tweet.split(" ").length + 2) / 2 < longest)) {
+              _context3.next = 34;
+              break;
+            }
+
+            return _context3.abrupt('return', false);
+
+          case 34:
+
             tweet = _underscore2.default.unescapeHTML(tweet);
             return _context3.abrupt('return', tweet.length < _constants2.default.MAX_CHARS ? tweet : false);
 
-          case 30:
+          case 36:
           case 'end':
             return _context3.stop();
         }
@@ -670,17 +689,105 @@ var postTweet = function () {
   };
 }();
 
-_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
-  return regeneratorRuntime.wrap(function _callee9$(_context9) {
+var testTweet = function () {
+  var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+    var tweet, mediaId, rand;
+    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      while (1) {
+        switch (_context9.prev = _context9.next) {
+          case 0:
+            tweet = false;
+            mediaId = false;
+            rand = _helpers2.default.random(1);
+
+          case 3:
+            _context9.prev = 3;
+            _context9.next = 6;
+            return generateTweet();
+
+          case 6:
+            tweet = _context9.sent;
+
+            if (tweet) {
+              _context9.next = 9;
+              break;
+            }
+
+            return _context9.abrupt('continue', 26);
+
+          case 9:
+            if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
+
+            if (!(rand < 0.15)) {
+              _context9.next = 16;
+              break;
+            }
+
+            _context9.next = 13;
+            return generateGif(tweet);
+
+          case 13:
+            mediaId = _context9.sent;
+            _context9.next = 20;
+            break;
+
+          case 16:
+            if (!(rand < 0.4)) {
+              _context9.next = 20;
+              break;
+            }
+
+            _context9.next = 19;
+            return generateImgur(tweet);
+
+          case 19:
+            mediaId = _context9.sent;
+
+          case 20:
+            console.log("(*** TWEET ***)", tweet);
+            _context9.next = 26;
+            break;
+
+          case 23:
+            _context9.prev = 23;
+            _context9.t0 = _context9['catch'](3);
+
+            console.error("ERROR: ", _context9.t0);
+
+          case 26:
+            if (!tweet) {
+              _context9.next = 3;
+              break;
+            }
+
+          case 27:
+          case 'end':
+            return _context9.stop();
+        }
+      }
+    }, _callee9, undefined, [[3, 23]]);
+  }));
+
+  return function testTweet() {
+    return _ref9.apply(this, arguments);
+  };
+}();
+
+_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10() {
+  return regeneratorRuntime.wrap(function _callee10$(_context10) {
     while (1) {
-      switch (_context9.prev = _context9.next) {
+      switch (_context10.prev = _context10.next) {
         case 0:
-          setInterval(postTweet, _constants2.default.TIME_BETWEEN_TWEETS);
+          if (PORT === 8080) {
+            testTweet();
+          } else {
+            setInterval(postTweet, _constants2.default.TIME_BETWEEN_TWEETS);
+          }
 
         case 1:
         case 'end':
-          return _context9.stop();
+          return _context10.stop();
       }
     }
-  }, _callee9, undefined);
+  }, _callee10, undefined);
 }))();

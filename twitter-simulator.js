@@ -131,16 +131,26 @@ const generateTweet = async () => {
 
   firstOut = await getTweetThird(word, "first");
   if (!firstOut) return false;
-  tweet += firstOut.text;
+  let text1 = firstOut.text;
+  tweet += text1;
 
   secondOut = await getTweetThird(word, "second", firstOut.id);
   if (!secondOut) return false;
-  tweet += secondOut.text;
+  let text2 = secondOut.text;
+  tweet += text2;
   word2 = secondOut.word;
 
   thirdOut = await getTweetThird(word2, "third", [firstOut.id, secondOut.id]);
   if (!thirdOut) return false;
-  tweet += thirdOut.text;
+  let text3 = thirdOut.text;
+  tweet += text3;
+
+  // Prevent tweets made almost exclusively of a single tweet
+  let longest = Math.max(
+    text1.split(" ").length, text2.split(" ").length, text3.split(" ").length
+  );
+  if ((tweet.split(" ").length + 2) / 2 < longest) return false;
+
   tweet = S.unescapeHTML(tweet);
   return (tweet.length < C.MAX_CHARS ? tweet : false);
 };
@@ -293,6 +303,31 @@ const postTweet = async () => {
   } while (!tweet);
 };
 
+const testTweet = async () => {
+  let tweet = false;
+  let mediaId = false;
+  let rand = H.random(1);
+  do {
+    try {
+      tweet = await generateTweet();
+      if (!tweet) continue;
+      if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
+      if (rand < 0.15) {
+        mediaId = await generateGif(tweet);
+      } else if (rand < 0.4) {
+        mediaId = await generateImgur(tweet);
+      }
+      console.log("(*** TWEET ***)", tweet);
+    } catch (err) {
+      console.error("ERROR: ", err);
+    }
+  } while (!tweet);
+};
+
 (async () => {
-  setInterval(postTweet, C.TIME_BETWEEN_TWEETS);
+  if (PORT === 8080) {
+    testTweet();
+  } else {
+    setInterval(postTweet, C.TIME_BETWEEN_TWEETS);
+  }
 }) ();
