@@ -147,9 +147,9 @@ const generateTweet = async () => {
 
   // Prevent tweets made almost exclusively of a single tweet
   let longest = Math.max(
-    text1.split(" ").length, text2.split(" ").length, text3.split(" ").length
+    H.numWords(text1), H.numWords(text2), H.numWords(text3)
   );
-  if ((tweet.split(" ").length + 2) / 2 < longest) return false;
+  if ((H.numWords(tweet) + 2) / 2 < longest) return false;
 
   tweet = S.unescapeHTML(tweet);
   return (tweet.length < C.MAX_CHARS ? tweet : false);
@@ -179,7 +179,7 @@ const uploadMediaToTwitter = async (base64, mimeType) => {
 
 const createMediaKeywords = (text) => {
   text = text.replace(/[^A-Za-z ]/g, "");
-  let array = text.toLowerCase().split("\n").join(" ").split(" ");
+  let array = H.lowercaseSplitInWords(text);
   let keywords = "";
   for (let i = 0; i < 3; i ++) {
     let keyword = H.popRandom(array);

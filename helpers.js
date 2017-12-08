@@ -125,4 +125,16 @@ export default {
     return element;
   },
 
+  splitInWords: function (array) {
+    return array.split("\n").join(" ").split(" ");
+  },
+
+  lowercaseSplitInWords: function (array) {
+    return this.splitInWords(array.toLowerCase());
+  },
+
+  numWords: function (array) {
+    return this.splitInWords(array).length;
+  },
+
 }

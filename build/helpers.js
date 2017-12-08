@@ -140,6 +140,18 @@ exports.default = {
       array.pop();
     }
     return element;
+  },
+
+  splitInWords: function splitInWords(array) {
+    return array.split("\n").join(" ").split(" ");
+  },
+
+  lowercaseSplitInWords: function lowercaseSplitInWords(array) {
+    return this.splitInWords(array.toLowerCase());
+  },
+
+  numWords: function numWords(array) {
+    return this.splitInWords(array).length;
   }
 
 };

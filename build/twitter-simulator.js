@@ -285,9 +285,9 @@ var generateTweet = function () {
             tweet += text3;
 
             // Prevent tweets made almost exclusively of a single tweet
-            longest = Math.max(text1.split(" ").length, text2.split(" ").length, text3.split(" ").length);
+            longest = Math.max(_helpers2.default.numWords(text1), _helpers2.default.numWords(text2), _helpers2.default.numWords(text3));
 
-            if (!((tweet.split(" ").length + 2) / 2 < longest)) {
+            if (!((_helpers2.default.numWords(tweet) + 2) / 2 < longest)) {
               _context3.next = 34;
               break;
             }
@@ -362,7 +362,7 @@ var uploadMediaToTwitter = function () {
 
 var createMediaKeywords = function createMediaKeywords(text) {
   text = text.replace(/[^A-Za-z ]/g, "");
-  var array = text.toLowerCase().split("\n").join(" ").split(" ");
+  var array = _helpers2.default.lowercaseSplitInWords(text);
   var keywords = "";
   for (var i = 0; i < 3; i++) {
     var keyword = _helpers2.default.popRandom(array);
