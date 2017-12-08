@@ -2,7 +2,9 @@
 
 var _http = require('http');
 
-var _http2 = _interopRequireDefault(_http);
+var _express = require('express');
+
+var _express2 = _interopRequireDefault(_express);
 
 var _twitter = require('twitter');
 
@@ -48,7 +50,12 @@ require("babel-polyfill");
 
 
 var PORT = process.env.PORT || 8080;
-_http2.default.createServer().listen(PORT);
+var app = new _express2.default();
+var server = new _http.Server(app);
+server.listen(PORT);
+app.get('*', function (req, res) {
+  res.sendStatus(200);
+});
 
 var CONFIG = {};
 try {

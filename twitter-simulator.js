@@ -1,5 +1,6 @@
 require("babel-polyfill");
-import http from 'http'
+import { Server } from 'http'
+import Express from 'express'
 import Twitter from 'twitter'
 import Giphy from 'giphy-api'
 import fetch from 'node-fetch'
@@ -12,7 +13,12 @@ import stopwords from './stopwords'
 import C from './constants'
 
 const PORT = process.env.PORT || 8080;
-http.createServer().listen(PORT);
+const app = new Express();
+const server = new Server(app);
+server.listen(PORT);
+app.get('*', (req, res) => {
+  res.sendStatus(200);
+});
 
 let CONFIG = {};
 try {
