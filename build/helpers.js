@@ -116,7 +116,7 @@ exports.default = {
     var ar = _underscore2.default.words(_str, " ");
     do {
       var closingWord = ar[nextWordAt];
-      if (_twitterWords2.default.indexOf(closingWord) > -1) {
+      if (_twitterWords2.default.includes(closingWord)) {
         _str = _underscore2.default.strLeft(_str, " " + closingWord + " ");
         if (_str !== str) {
           return { text: _str + " " + closingWord + " ", word: closingWord };
@@ -125,6 +125,20 @@ exports.default = {
       nextWordAt++;
     } while (ar.length > nextWordAt);
     return "";
+  },
+
+  splitInWords: function splitInWords(str) {
+    return str.split("\n").join(" ").split(" ");
+  },
+
+  lowercaseSplitInWords: function lowercaseSplitInWords(str) {
+    return this.splitInWords(str.toLowerCase());
+  },
+
+  numWords: function numWords(str) {
+    var array = this.splitInWords(str);
+    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
+    return array.length;
   },
 
   /* ARRAY */
@@ -140,18 +154,6 @@ exports.default = {
       array.pop();
     }
     return element;
-  },
-
-  splitInWords: function splitInWords(array) {
-    return array.split("\n").join(" ").split(" ");
-  },
-
-  lowercaseSplitInWords: function lowercaseSplitInWords(array) {
-    return this.splitInWords(array.toLowerCase());
-  },
-
-  numWords: function numWords(array) {
-    return this.splitInWords(array).length;
   }
 
 };

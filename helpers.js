@@ -99,7 +99,7 @@ export default {
     let ar = S.words(_str, " ");
     do {
       let closingWord = ar[nextWordAt];
-      if (twitterwords.indexOf(closingWord) > -1) {
+      if (twitterwords.includes(closingWord)) {
         _str = S.strLeft(_str, " " + closingWord + " ");
         if (_str !== str) {
           return { text: _str + " " + closingWord + " ", word: closingWord };
@@ -108,6 +108,20 @@ export default {
       nextWordAt ++;
     } while (ar.length > nextWordAt);
     return "";
+  },
+
+  splitInWords: function (str) {
+    return str.split("\n").join(" ").split(" ");
+  },
+
+  lowercaseSplitInWords: function (str) {
+    return this.splitInWords(str.toLowerCase());
+  },
+
+  numWords: function (str) {
+    let array = this.splitInWords(str);
+    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
+    return array.length;
   },
 
   /* ARRAY */
@@ -123,18 +137,6 @@ export default {
       array.pop();
     }
     return element;
-  },
-
-  splitInWords: function (array) {
-    return array.split("\n").join(" ").split(" ");
-  },
-
-  lowercaseSplitInWords: function (array) {
-    return this.splitInWords(array.toLowerCase());
-  },
-
-  numWords: function (array) {
-    return this.splitInWords(array).length;
   },
 
 }

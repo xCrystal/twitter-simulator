@@ -153,7 +153,7 @@ var getTweetThird = function () {
               output = sampleFormatTweet(tweets);
               text = output.text;
               id = output.id;
-            } while (discardIds.indexOf(id) > -1 || maxSpecialDiscards-- > 0 && (text.indexOf("@") > -1 || text.indexOf("#") > -1));
+            } while (discardIds.includes(id) || maxSpecialDiscards-- > 0 && (text.includes("@") || text.includes("#")));
 
             if (text) {
               _context2.next = 10;
@@ -367,7 +367,7 @@ var createMediaKeywords = function createMediaKeywords(text) {
   for (var i = 0; i < 3; i++) {
     var keyword = _helpers2.default.popRandom(array);
     if (keyword === false) break;
-    if (keyword && _stopwords2.default.indexOf(keyword) === -1) {
+    if (keyword && !_stopwords2.default.includes(keyword)) {
       keywords += keyword + " ";
     } else {
       i--;

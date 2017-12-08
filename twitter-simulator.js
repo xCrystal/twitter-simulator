@@ -90,9 +90,9 @@ const getTweetThird = async (
       text = output.text;
       id = output.id;
     } while (
-      discardIds.indexOf(id) > -1 ||
+      discardIds.includes(id) ||
       maxSpecialDiscards -- > 0 &&
-      (text.indexOf("@") > -1 || text.indexOf("#") > -1)
+      (text.includes("@") || text.includes("#"))
     );
     if (!text) return false;
     switch (whichThird) {
@@ -184,7 +184,7 @@ const createMediaKeywords = (text) => {
   for (let i = 0; i < 3; i ++) {
     let keyword = H.popRandom(array);
     if (keyword === false) break;
-    if (keyword && stopwords.indexOf(keyword) === -1) {
+    if (keyword && !stopwords.includes(keyword)) {
       keywords += keyword + " ";
     } else {
       i --;

@@ -7,7 +7,8 @@
   },
   "scripts": {
     "build": "babel -d ./build *.js",
-    "start": "node ./build/twitter-simulator.js"
+    "start": "node ./build/twitter-simulator.js",
+    "run": "npm run build && npm start"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
