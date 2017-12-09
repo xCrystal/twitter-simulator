@@ -327,6 +327,7 @@ const postTweet = async () => {
       console.log("(*** TWEET ***)", tweet);
     } catch (err) {
       console.error("ERROR: ", err);
+      tweet = false;
     }
   } while (!tweet);
 };
@@ -348,6 +349,7 @@ const testTweet = async () => {
       console.log("(*** TWEET ***)", tweet);
     } catch (err) {
       console.error("ERROR: ", err);
+      tweet = false;
     }
   } while (!tweet);
 };

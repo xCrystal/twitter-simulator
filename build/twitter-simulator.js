@@ -660,7 +660,7 @@ var postTweet = function () {
               break;
             }
 
-            return _context8.abrupt('continue', 35);
+            return _context8.abrupt('continue', 36);
 
           case 9:
             if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
@@ -720,7 +720,7 @@ var postTweet = function () {
           case 28:
             ;
             console.log("(*** TWEET ***)", tweet);
-            _context8.next = 35;
+            _context8.next = 36;
             break;
 
           case 32:
@@ -728,14 +728,15 @@ var postTweet = function () {
             _context8.t0 = _context8['catch'](3);
 
             console.error("ERROR: ", _context8.t0);
+            tweet = false;
 
-          case 35:
+          case 36:
             if (!tweet) {
               _context8.next = 3;
               break;
             }
 
-          case 36:
+          case 37:
           case 'end':
             return _context8.stop();
         }
@@ -772,7 +773,7 @@ var testTweet = function () {
               break;
             }
 
-            return _context9.abrupt('continue', 26);
+            return _context9.abrupt('continue', 27);
 
           case 9:
             if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
@@ -804,7 +805,7 @@ var testTweet = function () {
 
           case 20:
             console.log("(*** TWEET ***)", tweet);
-            _context9.next = 26;
+            _context9.next = 27;
             break;
 
           case 23:
@@ -812,14 +813,15 @@ var testTweet = function () {
             _context9.t0 = _context9['catch'](3);
 
             console.error("ERROR: ", _context9.t0);
+            tweet = false;
 
-          case 26:
+          case 27:
             if (!tweet) {
               _context9.next = 3;
               break;
             }
 
-          case 27:
+          case 28:
           case 'end':
             return _context9.stop();
         }
