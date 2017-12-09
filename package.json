@@ -1,9 +1,18 @@
 {
   "name": "twitter-simulator",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "A twitter bot that generates tweets by combining three popular tweets at random.",
+  "keywords": [
+    "twitter",
+    "bot",
+    "markov"
+  ],
+  "homepage": "https://twitter.com/_tweetSimulator",
+  "license": "GPL-3.0",
+  "main": "twitter-simulator.js",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/xCrystal/twitter-simulator.git"
+    "url": "git+https://github.com/xCrystal/twitter-simulator.git"
   },
   "scripts": {
     "build": "babel -d ./build *.js",
