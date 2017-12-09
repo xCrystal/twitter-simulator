@@ -33,11 +33,11 @@ export default {
 
   randomTimeInterval: function () {
     const days = (n) => 1000 * 60 * 60 * 24 * n;
-    let delta = this.random(days(10), 0, -2);
+    let delta = this.random(days(12), 0);
     let curTime = new Date().getTime();
     return {
       "since": new Date(curTime - delta),
-      "until": new Date(curTime - delta + days(3)),
+      "until": new Date(curTime - delta + days(4)),
     };
   },
 
@@ -96,7 +96,7 @@ export default {
     let _str = S.strRight(str, word);
     let foundBefore = S.count(_str, " ") + S.count(_str, "\n");
     if (_str === str || foundBefore > beforeLast) return "";
-    let ar = S.words(_str, " ");
+    let ar = this.splitInWords(_str);
     do {
       let closingWord = ar[nextWordAt];
       if (twitterwords.includes(closingWord)) {
@@ -110,8 +110,16 @@ export default {
     return "";
   },
 
+  /* STRING -> ARRAY */
+
+  discardTrailingSpace: function (array) {
+    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
+    return array;
+  },
+
   splitInWords: function (str) {
-    return str.split("\n").join(" ").split(" ");
+    let array = str.split("\n").join(" ").split(" ");
+    return this.discardTrailingSpace(array);
   },
 
   lowercaseSplitInWords: function (str) {
@@ -119,9 +127,7 @@ export default {
   },
 
   numWords: function (str) {
-    let array = this.splitInWords(str);
-    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
-    return array.length;
+    return this.splitInWords(str).length;
   },
 
   /* ARRAY */

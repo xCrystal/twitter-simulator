@@ -56,11 +56,11 @@ exports.default = {
     var days = function days(n) {
       return 1000 * 60 * 60 * 24 * n;
     };
-    var delta = this.random(days(10), 0, -2);
+    var delta = this.random(days(12), 0);
     var curTime = new Date().getTime();
     return {
       "since": new Date(curTime - delta),
-      "until": new Date(curTime - delta + days(3))
+      "until": new Date(curTime - delta + days(4))
     };
   },
 
@@ -113,7 +113,7 @@ exports.default = {
     var _str = _underscore2.default.strRight(str, word);
     var foundBefore = _underscore2.default.count(_str, " ") + _underscore2.default.count(_str, "\n");
     if (_str === str || foundBefore > beforeLast) return "";
-    var ar = _underscore2.default.words(_str, " ");
+    var ar = this.splitInWords(_str);
     do {
       var closingWord = ar[nextWordAt];
       if (_twitterWords2.default.includes(closingWord)) {
@@ -127,8 +127,16 @@ exports.default = {
     return "";
   },
 
+  /* STRING -> ARRAY */
+
+  discardTrailingSpace: function discardTrailingSpace(array) {
+    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
+    return array;
+  },
+
   splitInWords: function splitInWords(str) {
-    return str.split("\n").join(" ").split(" ");
+    var array = str.split("\n").join(" ").split(" ");
+    return this.discardTrailingSpace(array);
   },
 
   lowercaseSplitInWords: function lowercaseSplitInWords(str) {
@@ -136,9 +144,7 @@ exports.default = {
   },
 
   numWords: function numWords(str) {
-    var array = this.splitInWords(str);
-    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
-    return array.length;
+    return this.splitInWords(str).length;
   },
 
   /* ARRAY */
