@@ -138,7 +138,8 @@ const generateTweet = async () => {
     if (!firstOut) continue;
     text1 = firstOut.text;
     _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
-  } while (!_word && retryCount -- > 0);
+  } while (retryCount -- > 0 && !_word);
+  if (!firstOut) return false;
   tweet += text1;
   if (_word) {
     word = _word + " " + word;
@@ -152,7 +153,8 @@ const generateTweet = async () => {
     text2 = secondOut.text;
     word2 = secondOut.word;
     _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
-  } while (!_word2 && retryCount -- > 0);
+  } while (retryCount -- > 0 && !_word2);
+  if (!secondOut) return false;
   tweet += text2;
   if (_word2) {
     word2 = _word2 + " " + word2;
@@ -161,9 +163,12 @@ const generateTweet = async () => {
     searchType = "popular";
   }
 
-  thirdOut = await getTweetThird(
-    word2, "third", searchType, [firstOut.id, secondOut.id]
-  );
+  retryCount = 1;
+  do {
+    thirdOut = await getTweetThird(
+      word2, "third", searchType, [firstOut.id, secondOut.id]
+    );
+  } while (retryCount -- > 0 && !thirdOut);
   if (!thirdOut) return false;
   text3 = thirdOut.text;
   tweet += text3;
