@@ -81,8 +81,7 @@ var G = (0, _giphyApi2.default)(CONFIG.giphy.id);
 var IMGUR_ID = CONFIG.imgur.id;
 
 var search = function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(word, since, until) {
-    var type = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "popular";
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(word, since, until, type) {
     var count = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 100;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
@@ -110,7 +109,7 @@ var search = function () {
     }, _callee, undefined);
   }));
 
-  return function search(_x, _x2, _x3) {
+  return function search(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -128,11 +127,11 @@ var sampleFormatTweet = function sampleFormatTweet(tweets) {
 };
 
 var getTweetThird = function () {
-  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(word, whichThird) {
-    var discardIds = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-    var maxLen = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants2.default.MAX_STRLEN;
-    var maxForcedLen = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants2.default.MAX_FORCED_STRLEN;
-    var maxSpecialDiscards = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 2;
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(word, whichThird, searchType) {
+    var discardIds = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+    var maxLen = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants2.default.MAX_STRLEN;
+    var maxForcedLen = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : _constants2.default.MAX_FORCED_STRLEN;
+    var maxSpecialDiscards = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 2;
     var time, tweets, output, text, id, minLen;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
@@ -140,7 +139,7 @@ var getTweetThird = function () {
           case 0:
             time = _helpers2.default.randomTimeInterval();
             _context2.next = 3;
-            return search(word, time.since, time.until, "popular", 100);
+            return search(word, time.since, time.until, searchType, 100);
 
           case 3:
             tweets = _context2.sent;
@@ -204,21 +203,24 @@ var getTweetThird = function () {
     }, _callee2, undefined);
   }));
 
-  return function getTweetThird(_x6, _x7) {
+  return function getTweetThird(_x6, _x7, _x8) {
     return _ref2.apply(this, arguments);
   };
 }();
 
 var generateTweet = function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-    var tweet, word, word2, firstOut, secondOut, thirdOut, i, text1, text2, text3, longest;
+    var tweet, text1, text2, text3, word, _word, word2, _word2, searchType, firstOut, secondOut, thirdOut, i, retryCount, longest;
+
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
             tweet = "";
-            word = "";
-            word2 = "";
+            text1 = "", text2 = "", text3 = "";
+            word = "", _word = "";
+            word2 = "", _word2 = "";
+            searchType = "popular";
             firstOut = "";
             secondOut = "";
             thirdOut = "";
@@ -229,77 +231,108 @@ var generateTweet = function () {
             } while (i > _twitterWords2.default.length - 1);
             word = _twitterWords2.default[i];
 
-            _context3.next = 11;
-            return getTweetThird(word, "first");
+            retryCount = 1;
 
-          case 11:
+          case 12:
+            _context3.next = 14;
+            return getTweetThird(word, "first", "popular");
+
+          case 14:
             firstOut = _context3.sent;
 
             if (firstOut) {
-              _context3.next = 14;
+              _context3.next = 17;
               break;
             }
 
-            return _context3.abrupt('return', false);
+            return _context3.abrupt('continue', 19);
 
-          case 14:
+          case 17:
             text1 = firstOut.text;
+            _word = _helpers2.default.hasWordInAnyArray(text1, 2, [_twitterWords2.default, _stopwords2.default]);
 
+          case 19:
+            if (!_word && retryCount-- > 0) {
+              _context3.next = 12;
+              break;
+            }
+
+          case 20:
             tweet += text1;
+            if (_word) {
+              word = _word + " " + word;
+              searchType = "mixed";
+            }
 
-            _context3.next = 18;
-            return getTweetThird(word, "second", firstOut.id);
+            retryCount = 1;
 
-          case 18:
+          case 23:
+            _context3.next = 25;
+            return getTweetThird(word, "second", searchType, firstOut.id);
+
+          case 25:
             secondOut = _context3.sent;
 
             if (secondOut) {
-              _context3.next = 21;
+              _context3.next = 28;
               break;
             }
 
-            return _context3.abrupt('return', false);
+            return _context3.abrupt('continue', 31);
 
-          case 21:
+          case 28:
             text2 = secondOut.text;
-
-            tweet += text2;
             word2 = secondOut.word;
+            _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default, _stopwords2.default]);
 
-            _context3.next = 26;
-            return getTweetThird(word2, "third", [firstOut.id, secondOut.id]);
+          case 31:
+            if (!_word2 && retryCount-- > 0) {
+              _context3.next = 23;
+              break;
+            }
 
-          case 26:
+          case 32:
+            tweet += text2;
+            if (_word2) {
+              word2 = _word2 + " " + word2;
+              searchType = "mixed";
+            } else {
+              searchType = "popular";
+            }
+
+            _context3.next = 36;
+            return getTweetThird(word2, "third", searchType, [firstOut.id, secondOut.id]);
+
+          case 36:
             thirdOut = _context3.sent;
 
             if (thirdOut) {
-              _context3.next = 29;
+              _context3.next = 39;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 29:
+          case 39:
             text3 = thirdOut.text;
-
             tweet += text3;
 
             // Prevent tweets made almost exclusively of a single tweet
             longest = Math.max(_helpers2.default.numWords(text1), _helpers2.default.numWords(text2), _helpers2.default.numWords(text3));
 
             if (!((_helpers2.default.numWords(tweet) + 2) / 2 < longest)) {
-              _context3.next = 34;
+              _context3.next = 44;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 34:
+          case 44:
 
             tweet = _underscore2.default.unescapeHTML(tweet);
             return _context3.abrupt('return', tweet.length < _constants2.default.MAX_CHARS ? tweet : false);
 
-          case 36:
+          case 46:
           case 'end':
             return _context3.stop();
         }
@@ -355,7 +388,7 @@ var uploadMediaToTwitter = function () {
     }, _callee4, undefined);
   }));
 
-  return function uploadMediaToTwitter(_x12, _x13) {
+  return function uploadMediaToTwitter(_x13, _x14) {
     return _ref4.apply(this, arguments);
   };
 }();
@@ -423,7 +456,7 @@ var generateGif = function () {
     }, _callee5, undefined);
   }));
 
-  return function generateGif(_x14) {
+  return function generateGif(_x15) {
     return _ref5.apply(this, arguments);
   };
 }();
@@ -460,7 +493,7 @@ var generateImgur = function () {
                 }, _callee6, undefined);
               }));
 
-              return function req(_x16) {
+              return function req(_x17) {
                 return _ref7.apply(this, arguments);
               };
             }();
@@ -572,7 +605,7 @@ var generateImgur = function () {
     }, _callee7, undefined);
   }));
 
-  return function generateImgur(_x15) {
+  return function generateImgur(_x16) {
     return _ref6.apply(this, arguments);
   };
 }();

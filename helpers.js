@@ -37,7 +37,7 @@ export default {
     let curTime = new Date().getTime();
     return {
       "since": new Date(curTime - delta),
-      "until": new Date(curTime - delta + days(4)),
+      "until": new Date(curTime - delta + days(5)),
     };
   },
 
@@ -113,7 +113,9 @@ export default {
   /* STRING -> ARRAY */
 
   discardTrailingSpace: function (array) {
-    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
+    if (array[array.length - 1] === '') {
+      array = array.slice(0, array.length - 1);
+    }
     return array;
   },
 
@@ -128,6 +130,16 @@ export default {
 
   numWords: function (str) {
     return this.splitInWords(str).length;
+  },
+
+  /* wordPos is counted from right to left or string*/
+  hasWordInAnyArray: function (str, wordPos, inArrays) {
+    let array = this.lowercaseSplitInWords(str);
+    let word = array[array.length - wordPos];
+    for (let a of inArrays) {
+      if (a.includes(word)) return word;
+    }
+    return false;
   },
 
   /* ARRAY */

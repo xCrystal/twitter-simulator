@@ -60,7 +60,7 @@ exports.default = {
     var curTime = new Date().getTime();
     return {
       "since": new Date(curTime - delta),
-      "until": new Date(curTime - delta + days(4))
+      "until": new Date(curTime - delta + days(5))
     };
   },
 
@@ -130,7 +130,9 @@ exports.default = {
   /* STRING -> ARRAY */
 
   discardTrailingSpace: function discardTrailingSpace(array) {
-    if (array[array.length - 1] === '') array.slice(0, array.length - 1);
+    if (array[array.length - 1] === '') {
+      array = array.slice(0, array.length - 1);
+    }
     return array;
   },
 
@@ -145,6 +147,38 @@ exports.default = {
 
   numWords: function numWords(str) {
     return this.splitInWords(str).length;
+  },
+
+  /* wordPos is counted from right to left or string*/
+  hasWordInAnyArray: function hasWordInAnyArray(str, wordPos, inArrays) {
+    var array = this.lowercaseSplitInWords(str);
+    var word = array[array.length - wordPos];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = inArrays[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var a = _step.value;
+
+        if (a.includes(word)) return word;
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    return false;
   },
 
   /* ARRAY */

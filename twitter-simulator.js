@@ -43,7 +43,7 @@ const T = new Twitter(CONFIG.twitter);
 const G = Giphy(CONFIG.giphy.id);
 const IMGUR_ID = CONFIG.imgur.id;
 
-const search = async (word, since, until, type = "popular", count = 100) => {
+const search = async (word, since, until, type, count = 100) => {
   return await T.get("search/tweets", {
     "q": word + " AND -filter:retweets",
     "lang": "en",
@@ -70,6 +70,7 @@ const sampleFormatTweet = (tweets) => {
 const getTweetThird = async (
   word,
   whichThird,
+  searchType,
   // Prevent the same tweet from being picked
   discardIds = [],
   maxLen = C.MAX_STRLEN,
@@ -79,7 +80,7 @@ const getTweetThird = async (
   maxSpecialDiscards = 2
 ) => {
   let time = H.randomTimeInterval();
-  let tweets = await search(word, time.since, time.until, "popular", 100);
+  let tweets = await search(word, time.since, time.until, searchType, 100);
   let output = "";
   let text = "";
   let id = "";
@@ -118,8 +119,10 @@ const getTweetThird = async (
 
 const generateTweet = async () => {
   let tweet = "";
-  let word = "";
-  let word2 = "";
+  let text1 = "", text2 = "", text3 = "";
+  let word = "", _word = "";
+  let word2 = "", _word2 = "";
+  let searchType = "popular";
   let firstOut = "";
   let secondOut = "";
   let thirdOut = "";
@@ -129,20 +132,40 @@ const generateTweet = async () => {
   } while (i > twitterwords.length - 1);
   word = twitterwords[i];
 
-  firstOut = await getTweetThird(word, "first");
-  if (!firstOut) return false;
-  let text1 = firstOut.text;
+  let retryCount = 1;
+  do {
+    firstOut = await getTweetThird(word, "first", "popular");
+    if (!firstOut) continue;
+    text1 = firstOut.text;
+    _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
+  } while (!_word && retryCount -- > 0);
   tweet += text1;
+  if (_word) {
+    word = _word + " " + word;
+    searchType = "mixed";
+  }
 
-  secondOut = await getTweetThird(word, "second", firstOut.id);
-  if (!secondOut) return false;
-  let text2 = secondOut.text;
+  retryCount = 1;
+  do {
+    secondOut = await getTweetThird(word, "second", searchType, firstOut.id);
+    if (!secondOut) continue;
+    text2 = secondOut.text;
+    word2 = secondOut.word;
+    _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
+  } while (!_word2 && retryCount -- > 0);
   tweet += text2;
-  word2 = secondOut.word;
+  if (_word2) {
+    word2 = _word2 + " " + word2;
+    searchType = "mixed";
+  } else {
+    searchType = "popular";
+  }
 
-  thirdOut = await getTweetThird(word2, "third", [firstOut.id, secondOut.id]);
+  thirdOut = await getTweetThird(
+    word2, "third", searchType, [firstOut.id, secondOut.id]
+  );
   if (!thirdOut) return false;
-  let text3 = thirdOut.text;
+  text3 = thirdOut.text;
   tweet += text3;
 
   // Prevent tweets made almost exclusively of a single tweet
