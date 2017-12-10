@@ -77,7 +77,7 @@ const getTweetThird = async (
   maxForcedLen = C.MAX_FORCED_STRLEN,
   // Tweets with mentions or hashtags tend to lead to unfunnier results,
   // so slightly discourage them.
-  maxSpecialDiscards = 2
+  maxSpecialDiscards = 3
 ) => {
   let time = H.randomTimeInterval();
   let tweets = await search(word, time.since, time.until, searchType, 100);
@@ -114,7 +114,7 @@ const getTweetThird = async (
 
   output.id = id;
   console.log("(*", whichThird, " - ", id, "*)", output.text);
-  return output;
+  return output.text === " " ? false : output;
 };
 
 const generateTweet = async () => {
@@ -206,7 +206,10 @@ const generateTweet = async () => {
   let longest = Math.max(
     H.numWords(text1), H.numWords(text2), H.numWords(text3)
   );
-  if ((H.numWords(tweet) + 2) / 2 < longest) return false;
+  let mostChars = Math.max(text1.length, text2.length, text3.length);
+  if ((H.numWords(tweet) + 2) / 2 < longest && tweet.length < mostChars * 2) {
+    return false;
+  }
 
   tweet = S.unescapeHTML(tweet);
   return (tweet.length < C.MAX_CHARS ? tweet : false);
@@ -337,7 +340,7 @@ const postTweet = async () => {
     try {
       tweet = await generateTweet();
       if (!tweet) continue;
-      if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
+      if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
       if (rand < 0.15) {
         mediaId = await generateGif(tweet);
       } else if (rand < 0.4) {
@@ -369,7 +372,7 @@ const testTweet = async () => {
     try {
       tweet = await generateTweet();
       if (!tweet) continue;
-      if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
+      if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
       if (rand < 0.15) {
         mediaId = await generateGif(tweet);
       } else if (rand < 0.4) {

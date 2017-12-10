@@ -131,7 +131,7 @@ var getTweetThird = function () {
     var discardIds = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
     var maxLen = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants2.default.MAX_STRLEN;
     var maxForcedLen = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : _constants2.default.MAX_FORCED_STRLEN;
-    var maxSpecialDiscards = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 2;
+    var maxSpecialDiscards = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 3;
     var time, tweets, output, text, id, minLen;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
@@ -193,7 +193,7 @@ var getTweetThird = function () {
 
             output.id = id;
             console.log("(*", whichThird, " - ", id, "*)", output.text);
-            return _context2.abrupt('return', output);
+            return _context2.abrupt('return', output.text === " " ? false : output);
 
           case 25:
           case 'end':
@@ -210,7 +210,7 @@ var getTweetThird = function () {
 
 var generateTweet = function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-    var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, searchType, firstOut, secondOut, thirdOut, i, retryCount, longest;
+    var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, searchType, firstOut, secondOut, thirdOut, i, retryCount, longest, mostChars;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
@@ -251,8 +251,10 @@ var generateTweet = function () {
           case 18:
             text1 = firstOut.text;
             nextWord = firstOut.nextWord;
+            // ...or if we don't have a pair of words to hook the next part...
             _word = _helpers2.default.hasWordInAnyArray(text1, 2, [_twitterWords2.default, _stopwords2.default]);
             word_ = _helpers2.default.hasWordInAnyArray(nextWord, 1, [_twitterWords2.default, _stopwords2.default]);
+            // ...retry up to one time.
 
           case 22:
             if (retryCount-- > 0 && !_word && !word_) {
@@ -283,7 +285,10 @@ var generateTweet = function () {
 
           case 28:
             _context3.next = 30;
-            return getTweetThird(word, "second", retryCount == 2 ? "popular" : searchType, firstOut.id);
+            return getTweetThird(
+            // Always use the "popular" search on the first try, otherwise use
+            // the mixed search if we need to match two words.
+            word, "second", retryCount == 2 ? "popular" : searchType, firstOut.id);
 
           case 30:
             secondOut = _context3.sent;
@@ -299,8 +304,10 @@ var generateTweet = function () {
             text2 = secondOut.text;
             word2 = secondOut.word;
             nextWord2 = secondOut.nextWord;
+            // ...or if we don't have a pair of words to hook the next part...
             _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default, _stopwords2.default]);
             word2_ = _helpers2.default.hasWordInAnyArray(nextWord2, 1, [_twitterWords2.default, _stopwords2.default]);
+            // ...retry up to two times.
 
           case 38:
             if (retryCount-- > 0 && !_word2 && !word2_) {
@@ -333,7 +340,10 @@ var generateTweet = function () {
 
           case 44:
             _context3.next = 46;
-            return getTweetThird(word2, "third", retryCount == 2 ? "popular" : searchType, [firstOut.id, secondOut.id]);
+            return getTweetThird(word2, "third",
+            // Always use the "popular" search on the first try, otherwise use
+            // the mixed search if we need to match two words.
+            retryCount == 2 ? "popular" : searchType, [firstOut.id, secondOut.id]);
 
           case 46:
             thirdOut = _context3.sent;
@@ -358,20 +368,21 @@ var generateTweet = function () {
 
             // Prevent tweets made almost exclusively of a single tweet
             longest = Math.max(_helpers2.default.numWords(text1), _helpers2.default.numWords(text2), _helpers2.default.numWords(text3));
+            mostChars = Math.max(text1.length, text2.length, text3.length);
 
-            if (!((_helpers2.default.numWords(tweet) + 2) / 2 < longest)) {
-              _context3.next = 55;
+            if (!((_helpers2.default.numWords(tweet) + 2) / 2 < longest && tweet.length < mostChars * 2)) {
+              _context3.next = 56;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 55:
+          case 56:
 
             tweet = _underscore2.default.unescapeHTML(tweet);
             return _context3.abrupt('return', tweet.length < _constants2.default.MAX_CHARS ? tweet : false);
 
-          case 57:
+          case 58:
           case 'end':
             return _context3.stop();
         }
@@ -676,7 +687,7 @@ var postTweet = function () {
             return _context8.abrupt('continue', 36);
 
           case 9:
-            if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
+            if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
 
             if (!(rand < 0.15)) {
               _context8.next = 16;
@@ -789,7 +800,7 @@ var testTweet = function () {
             return _context9.abrupt('continue', 27);
 
           case 9:
-            if (tweet.substr(tweet.length - 1) === ":") rand /= 2.5;
+            if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
 
             if (!(rand < 0.15)) {
               _context9.next = 16;
