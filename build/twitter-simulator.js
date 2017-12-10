@@ -283,7 +283,7 @@ var generateTweet = function () {
 
           case 28:
             _context3.next = 30;
-            return getTweetThird(word, "second", searchType, firstOut.id);
+            return getTweetThird(word, "second", retryCount == 2 ? "popular" : searchType, firstOut.id);
 
           case 30:
             secondOut = _context3.sent;
@@ -333,7 +333,7 @@ var generateTweet = function () {
 
           case 44:
             _context3.next = 46;
-            return getTweetThird(word2, "third", searchType, [firstOut.id, secondOut.id]);
+            return getTweetThird(word2, "third", retryCount == 2 ? "popular" : searchType, [firstOut.id, secondOut.id]);
 
           case 46:
             thirdOut = _context3.sent;

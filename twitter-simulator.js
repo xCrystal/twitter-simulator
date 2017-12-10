@@ -136,11 +136,14 @@ const generateTweet = async () => {
   let retryCount = 1;
   do {
     firstOut = await getTweetThird(word, "first", "popular");
+    // If we don't have any result...
     if (!firstOut) continue;
     text1 = firstOut.text;
     nextWord = firstOut.nextWord;
+    // ...or if we don't have a pair of words to hook the next part...
     _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
     word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords, stopwords]);
+    // ...retry up to one time.
   } while (retryCount -- > 0 && !_word && !word_);
   if (!firstOut) return false;
   tweet += text1;
@@ -155,13 +158,20 @@ const generateTweet = async () => {
 
   retryCount = 2;
   do {
-    secondOut = await getTweetThird(word, "second", searchType, firstOut.id);
+    secondOut = await getTweetThird(
+      // Always use the "popular" search on the first try, otherwise use
+      // the mixed search if we need to match two words.
+      word, "second", retryCount == 2 ? "popular" : searchType, firstOut.id
+    );
+    // If we don't have any result...
     if (!secondOut) continue;
     text2 = secondOut.text;
     word2 = secondOut.word;
     nextWord2 = secondOut.nextWord;
+    // ...or if we don't have a pair of words to hook the next part...
     _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
     word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords, stopwords]);
+    // ...retry up to two times.
   } while (retryCount -- > 0 && !_word2 && !word2_);
   if (!secondOut) return false;
   tweet += text2;
@@ -179,8 +189,14 @@ const generateTweet = async () => {
   retryCount = 2;
   do {
     thirdOut = await getTweetThird(
-      word2, "third", searchType, [firstOut.id, secondOut.id]
+      word2,
+      "third",
+      // Always use the "popular" search on the first try, otherwise use
+      // the mixed search if we need to match two words.
+      retryCount == 2 ? "popular" : searchType,
+      [firstOut.id, secondOut.id]
     );
+  // Retry up to two times
   } while (retryCount -- > 0 && !thirdOut);
   if (!thirdOut) return false;
   text3 = thirdOut.text;
