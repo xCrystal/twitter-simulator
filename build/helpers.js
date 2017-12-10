@@ -88,8 +88,10 @@ exports.default = {
 
     word = " " + word + " ";
     var _str = _underscore2.default.strLeft(str, word);
+    var nextWord = _underscore2.default.strRight(str, word);
+    nextWord = _underscore2.default.strLeft(nextWord, " ");
     var foundWithin = _underscore2.default.count(_str, " ") + _underscore2.default.count(_str, "\n");
-    return _str === str || foundWithin >= withinFirst ? "" : { "text": _str + word };
+    return _str === str || foundWithin >= withinFirst ? "" : { "text": _str + word, "nextWord": nextWord };
   },
 
   /* Returns falsey if no applicable match */
@@ -119,7 +121,13 @@ exports.default = {
       if (_twitterWords2.default.includes(closingWord)) {
         _str = _underscore2.default.strLeft(_str, " " + closingWord + " ");
         if (_str !== str) {
-          return { text: _str + " " + closingWord + " ", word: closingWord };
+          var nextWord = _underscore2.default.strRightBack(str, closingWord);
+          nextWord = _underscore2.default.strLeft(nextWord.substr(1, nextWord.length - 1), " ");
+          return {
+            "text": _str + " " + closingWord + " ",
+            "word": closingWord,
+            "nextWord": nextWord
+          };
         }
       }
       nextWordAt++;

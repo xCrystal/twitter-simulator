@@ -265,7 +265,6 @@ export default [
   "hard",
   "soon",
   "tweet",
-  "por",
   "making",
   "wish",
   "call",

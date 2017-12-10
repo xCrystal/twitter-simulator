@@ -192,7 +192,7 @@ var getTweetThird = function () {
           case 22:
 
             output.id = id;
-            console.log("(*", whichThird, "*)", output.text);
+            console.log("(*", whichThird, " - ", id, "*)", output.text);
             return _context2.abrupt('return', output);
 
           case 25:
@@ -210,7 +210,7 @@ var getTweetThird = function () {
 
 var generateTweet = function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-    var tweet, text1, text2, text3, word, _word, word2, _word2, searchType, firstOut, secondOut, thirdOut, i, retryCount, longest;
+    var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, searchType, firstOut, secondOut, thirdOut, i, retryCount, longest;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
@@ -218,8 +218,9 @@ var generateTweet = function () {
           case 0:
             tweet = "";
             text1 = "", text2 = "", text3 = "";
-            word = "", _word = "";
-            word2 = "", _word2 = "";
+            word = "", _word = "", word_ = "";
+            word2 = "", _word2 = "", word2_ = "";
+            nextWord = "", nextWord2 = "";
             searchType = "popular";
             firstOut = "";
             secondOut = "";
@@ -233,120 +234,118 @@ var generateTweet = function () {
 
             retryCount = 1;
 
-          case 12:
-            _context3.next = 14;
+          case 13:
+            _context3.next = 15;
             return getTweetThird(word, "first", "popular");
 
-          case 14:
+          case 15:
             firstOut = _context3.sent;
 
             if (firstOut) {
-              _context3.next = 17;
+              _context3.next = 18;
               break;
             }
 
-            return _context3.abrupt('continue', 19);
+            return _context3.abrupt('continue', 22);
 
-          case 17:
+          case 18:
             text1 = firstOut.text;
+            nextWord = firstOut.nextWord;
             _word = _helpers2.default.hasWordInAnyArray(text1, 2, [_twitterWords2.default, _stopwords2.default]);
-
-          case 19:
-            if (retryCount-- > 0 && !_word) {
-              _context3.next = 12;
-              break;
-            }
-
-          case 20:
-            if (firstOut) {
-              _context3.next = 22;
-              break;
-            }
-
-            return _context3.abrupt('return', false);
+            word_ = _helpers2.default.hasWordInAnyArray(nextWord, 1, [_twitterWords2.default, _stopwords2.default]);
 
           case 22:
-            tweet += text1;
-            if (_word) {
-              word = _word + " " + word;
-              searchType = "mixed";
-            }
-
-            retryCount = 1;
-
-          case 25:
-            _context3.next = 27;
-            return getTweetThird(word, "second", searchType, firstOut.id);
-
-          case 27:
-            secondOut = _context3.sent;
-
-            if (secondOut) {
-              _context3.next = 30;
+            if (retryCount-- > 0 && !_word && !word_) {
+              _context3.next = 13;
               break;
             }
 
-            return _context3.abrupt('continue', 33);
-
-          case 30:
-            text2 = secondOut.text;
-            word2 = secondOut.word;
-            _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default, _stopwords2.default]);
-
-          case 33:
-            if (retryCount-- > 0 && !_word2) {
+          case 23:
+            if (firstOut) {
               _context3.next = 25;
               break;
             }
 
-          case 34:
+            return _context3.abrupt('return', false);
+
+          case 25:
+            tweet += text1;
+            if (_word) {
+              word = _word + " " + word;
+              searchType = "mixed";
+            } else if (word_) {
+              word = word + " " + word_;
+              tweet += word_ + " ";
+              searchType = "mixed";
+            }
+
+            retryCount = 2;
+
+          case 28:
+            _context3.next = 30;
+            return getTweetThird(word, "second", searchType, firstOut.id);
+
+          case 30:
+            secondOut = _context3.sent;
+
             if (secondOut) {
-              _context3.next = 36;
+              _context3.next = 33;
+              break;
+            }
+
+            return _context3.abrupt('continue', 38);
+
+          case 33:
+            text2 = secondOut.text;
+            word2 = secondOut.word;
+            nextWord2 = secondOut.nextWord;
+            _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default, _stopwords2.default]);
+            word2_ = _helpers2.default.hasWordInAnyArray(nextWord2, 1, [_twitterWords2.default, _stopwords2.default]);
+
+          case 38:
+            if (retryCount-- > 0 && !_word2 && !word2_) {
+              _context3.next = 28;
+              break;
+            }
+
+          case 39:
+            if (secondOut) {
+              _context3.next = 41;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 36:
+          case 41:
             tweet += text2;
             if (_word2) {
               word2 = _word2 + " " + word2;
+              searchType = "mixed";
+            } else if (word2_) {
+              word2 = word2 + " " + word2_;
+              tweet += word2_ + " ";
               searchType = "mixed";
             } else {
               searchType = "popular";
             }
 
-            retryCount = 1;
+            retryCount = 2;
 
-          case 39:
-            _context3.next = 41;
+          case 44:
+            _context3.next = 46;
             return getTweetThird(word2, "third", searchType, [firstOut.id, secondOut.id]);
 
-          case 41:
+          case 46:
             thirdOut = _context3.sent;
 
-          case 42:
+          case 47:
             if (retryCount-- > 0 && !thirdOut) {
-              _context3.next = 39;
+              _context3.next = 44;
               break;
             }
 
-          case 43:
+          case 48:
             if (thirdOut) {
-              _context3.next = 45;
-              break;
-            }
-
-            return _context3.abrupt('return', false);
-
-          case 45:
-            text3 = thirdOut.text;
-            tweet += text3;
-
-            // Prevent tweets made almost exclusively of a single tweet
-            longest = Math.max(_helpers2.default.numWords(text1), _helpers2.default.numWords(text2), _helpers2.default.numWords(text3));
-
-            if (!((_helpers2.default.numWords(tweet) + 2) / 2 < longest)) {
               _context3.next = 50;
               break;
             }
@@ -354,11 +353,25 @@ var generateTweet = function () {
             return _context3.abrupt('return', false);
 
           case 50:
+            text3 = thirdOut.text;
+            tweet += text3;
+
+            // Prevent tweets made almost exclusively of a single tweet
+            longest = Math.max(_helpers2.default.numWords(text1), _helpers2.default.numWords(text2), _helpers2.default.numWords(text3));
+
+            if (!((_helpers2.default.numWords(tweet) + 2) / 2 < longest)) {
+              _context3.next = 55;
+              break;
+            }
+
+            return _context3.abrupt('return', false);
+
+          case 55:
 
             tweet = _underscore2.default.unescapeHTML(tweet);
             return _context3.abrupt('return', tweet.length < _constants2.default.MAX_CHARS ? tweet : false);
 
-          case 52:
+          case 57:
           case 'end':
             return _context3.stop();
         }

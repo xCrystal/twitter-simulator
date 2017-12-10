@@ -113,15 +113,16 @@ const getTweetThird = async (
   } while (!output);
 
   output.id = id;
-  console.log("(*", whichThird, "*)", output.text);
+  console.log("(*", whichThird, " - ", id, "*)", output.text);
   return output;
 };
 
 const generateTweet = async () => {
   let tweet = "";
   let text1 = "", text2 = "", text3 = "";
-  let word = "", _word = "";
-  let word2 = "", _word2 = "";
+  let word = "", _word = "", word_ = "";
+  let word2 = "", _word2 = "", word2_ = "";
+  let nextWord = "", nextWord2 = "";
   let searchType = "popular";
   let firstOut = "";
   let secondOut = "";
@@ -137,33 +138,45 @@ const generateTweet = async () => {
     firstOut = await getTweetThird(word, "first", "popular");
     if (!firstOut) continue;
     text1 = firstOut.text;
+    nextWord = firstOut.nextWord;
     _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
-  } while (retryCount -- > 0 && !_word);
+    word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords, stopwords]);
+  } while (retryCount -- > 0 && !_word && !word_);
   if (!firstOut) return false;
   tweet += text1;
   if (_word) {
     word = _word + " " + word;
     searchType = "mixed";
+  } else if (word_) {
+    word = word + " " + word_;
+    tweet += (word_ + " ");
+    searchType = "mixed";
   }
 
-  retryCount = 1;
+  retryCount = 2;
   do {
     secondOut = await getTweetThird(word, "second", searchType, firstOut.id);
     if (!secondOut) continue;
     text2 = secondOut.text;
     word2 = secondOut.word;
+    nextWord2 = secondOut.nextWord;
     _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
-  } while (retryCount -- > 0 && !_word2);
+    word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords, stopwords]);
+  } while (retryCount -- > 0 && !_word2 && !word2_);
   if (!secondOut) return false;
   tweet += text2;
   if (_word2) {
     word2 = _word2 + " " + word2;
     searchType = "mixed";
+  } else if (word2_) {
+    word2 = word2 + " " + word2_;
+    tweet += (word2_ +  " ");
+    searchType = "mixed";
   } else {
     searchType = "popular";
   }
 
-  retryCount = 1;
+  retryCount = 2;
   do {
     thirdOut = await getTweetThird(
       word2, "third", searchType, [firstOut.id, secondOut.id]
