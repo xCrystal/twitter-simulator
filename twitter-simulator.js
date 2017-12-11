@@ -231,7 +231,10 @@ const generateTweet = async () => {
     );
     // Ending with a question tends to look awkward unless it is a
     // sentence on its own.
-    if (thirdOut.text.includes("?") && !thirdOut.text.includes(".")) {
+    if (
+      thirdOut &&
+      thirdOut.text.includes("?") && !thirdOut.text.includes(".")
+    ) {
       thirdOut = null;
     }
     // If we don't have any result retry up to three times.
