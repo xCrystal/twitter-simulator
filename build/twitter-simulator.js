@@ -278,7 +278,7 @@ var getTweetThird = function () {
 
 var generateTweet = function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-    var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, firstOut, secondOut, thirdOut, i, retriesLeft, longest, mostChars;
+    var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, firstOut, secondOut, thirdOut, i, retriesLeft, numWords1, numWords2, numWords3, len1, len2, len3, totalWords, totalLen, pass;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
@@ -430,22 +430,30 @@ var generateTweet = function () {
             tweet += text3;
 
             // Prevent tweets made almost exclusively of a single tweet
-            longest = Math.max(_helpers2.default.numWords(text1), _helpers2.default.numWords(text2), _helpers2.default.numWords(text3));
-            mostChars = Math.max(text1.length, text2.length, text3.length);
+            numWords1 = _helpers2.default.numWords(text1);
+            numWords2 = _helpers2.default.numWords(text2);
+            numWords3 = _helpers2.default.numWords(text3);
+            len1 = text1.length;
+            len2 = text2.length;
+            len3 = text3.length;
+            // Not totally equal to tweet's number of words of length due to word pairs
 
-            if (!((_helpers2.default.numWords(tweet) + 2) / 2 < longest && tweet.length < mostChars * 2)) {
-              _context3.next = 63;
-              break;
-            }
+            totalWords = numWords1 + numWords2 + numWords3;
+            totalLen = len1 + len2 + len3;
+            pass = false;
+            // Pretty much arbitrary numbers below.
 
-            return _context3.abrupt('return', false);
-
-          case 63:
+            if (
+            // For short tweets
+            (numWords1 + numWords2 >= (totalWords - 2) / 2 || len1 + len2 >= (totalLen - 5) / 2) && (numWords1 + numWords3 >= (totalWords - 2) / 2 || len1 + len3 >= (totalLen - 5) / 2) && (numWords2 + numWords3 >= (totalWords - 2) / 2 || len2 + len3 >= (totalLen - 5) / 2)) pass = true;
+            if (
+            // For longer tweers
+            (numWords1 + numWords2 >= 7 || len1 + len2 >= 35) && (numWords1 + numWords3 >= 7 || len1 + len3 >= 35) && (numWords2 + numWords3 >= 7 || len2 + len3 >= 35)) pass = true;
 
             tweet = _underscore2.default.unescapeHTML(tweet);
-            return _context3.abrupt('return', tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
+            return _context3.abrupt('return', pass && tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
 
-          case 65:
+          case 72:
           case 'end':
             return _context3.stop();
         }

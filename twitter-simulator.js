@@ -236,16 +236,39 @@ const generateTweet = async () => {
   tweet += text3;
 
   // Prevent tweets made almost exclusively of a single tweet
-  let longest = Math.max(
-    H.numWords(text1), H.numWords(text2), H.numWords(text3)
-  );
-  let mostChars = Math.max(text1.length, text2.length, text3.length);
-  if ((H.numWords(tweet) + 2) / 2 < longest && tweet.length < mostChars * 2) {
-    return false;
-  }
+  let numWords1 = H.numWords(text1);
+  let numWords2 = H.numWords(text2);
+  let numWords3 = H.numWords(text3);
+  let len1 = text1.length;
+  let len2 = text2.length;
+  let len3 = text3.length;
+  // Not totally equal to tweet's number of words of length due to word pairs
+  let totalWords = numWords1 + numWords2 + numWords3;
+  let totalLen = len1 + len2 + len3;
+  let pass = false;
+  // Pretty much arbitrary numbers below.
+  if (
+    // For short tweets
+    (
+      numWords1 + numWords2 >= (totalWords - 2) / 2 ||
+      len1 + len2 >= (totalLen - 5) / 2
+    ) && (
+      numWords1 + numWords3 >= (totalWords - 2) / 2 ||
+      len1 + len3 >= (totalLen - 5) / 2
+    ) && (
+      numWords2 + numWords3 >= (totalWords - 2) / 2 ||
+      len2 + len3 >= (totalLen - 5) / 2
+    )
+  ) pass = true;
+  if (
+    // For longer tweers
+    (numWords1 + numWords2 >= 7 || len1 + len2 >= 35) &&
+    (numWords1 + numWords3 >= 7 || len1 + len3 >= 35) &&
+    (numWords2 + numWords3 >= 7 || len2 + len3 >= 35)
+  ) pass = true;
 
   tweet = S.unescapeHTML(tweet);
-  return (tweet.length < C.MAX_TWEET_CHARS ? tweet : false);
+  return (pass && tweet.length < C.MAX_TWEET_CHARS ? tweet : false);
 };
 
 const uploadMediaToTwitter = async (base64, mimeType) => {
