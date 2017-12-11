@@ -85,14 +85,13 @@ const getTweetThird = async (
   discardIds = [],
   maxLen = C.MAX_STRLEN,
   maxForcedLen = C.MAX_FORCED_STRLEN,
-  // Tweets with mentions or hashtags tend to lead to unfunnier results,
-  // so slightly discourage them.
-  specialDiscardsLeft = 3
 ) => {
 
   const getMode = () => {
     let time = H.randomTimeInterval();
     let rand = H.random(1) > 0.5;
+    // Compute the search mode (result type and time interval) depending on
+    // which third, and on the number of times a search has already been tried
     switch (searchMode) {
       // [numberOfThird, retriesLeft]
       case [1, 0]:
@@ -122,16 +121,20 @@ const getTweetThird = async (
   let output = "";
   let text = "";
   let id = "";
+  // Tweets with mentions or hashtags tend to lead to unfunnier results,
+  // so slightly discourage them.
+  let specialDiscardsLeft = 2;
 
   do {
     do {
       output = sampleFormatTweet(tweets);
+      if (!output || !output.hasOwnProperty("text")) return false;
       text = output.text;
       id = output.id;
     } while (
-      discardIds.includes(id) ||
-      specialDiscardsLeft -- > 0 &&
-      (text.includes("@") || text.includes("#"))
+      discardIds.includes(id) || // Ignore repeated tweet for special discard
+      (text.includes("@") || text.includes("#")) &&
+      specialDiscardsLeft -- > 0
     );
     if (!text) return false;
     switch (searchMode[0]) {
@@ -172,6 +175,8 @@ const generateTweet = async () => {
 
   let retriesLeft = 1;
   do {
+    _word = "";
+    word_ = "";
     firstOut = await getTweetThird(word, [1, retriesLeft]);
     // If we don't have any result...
     if (!firstOut) continue;
@@ -180,8 +185,10 @@ const generateTweet = async () => {
     // ...or if we don't have a pair of words to hook the next part...
     _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
     word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords, stopwords]);
+    if (_word === "i") _word = "I";
+    if (word_ === "i") word_ = "I";
     // ...retry up to one time.
-  } while (retriesLeft -- > 0 && !_word && !word_);
+  } while (retriesLeft -- > 0 && !firstOut);
   if (!firstOut) return false;
   tweet += text1;
   if (_word) {
@@ -193,6 +200,8 @@ const generateTweet = async () => {
 
   retriesLeft = 3;
   do {
+    _word2 = "";
+    word2_ = "";
     secondOut = await getTweetThird(word, [2, retriesLeft], firstOut.id);
     // If we don't have any result...
     if (!secondOut) continue;
@@ -202,8 +211,10 @@ const generateTweet = async () => {
     // ...or if we don't have a pair of words to hook the next part...
     _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
     word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords, stopwords]);
+    if (_word2 === "i") _word2 = "I";
+    if (word2_ === "i") word2_ = "I";
     // ...retry up to three times.
-  } while (retriesLeft -- > 0 && !_word2 && !word2_);
+  } while (retriesLeft -- > 0 && !secondOut);
   if (!secondOut) return false;
   tweet += text2;
   if (_word2) {
