@@ -193,6 +193,18 @@ exports.default = {
     return false;
   },
 
+  containsMediaWord: function containsMediaWord(str) {
+    var mediaWords = ['picture', 'video', 'image', 'footage'];
+    var array = this.lowercaseSplitInWords(str);
+    do {
+      var elem = array.pop();
+      if (mediaWords.includes(elem)) {
+        return true;
+      }
+    } while (array.length);
+    return false;
+  },
+
   /* ARRAY */
 
   /* Returns false if array empty */

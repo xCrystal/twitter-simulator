@@ -411,21 +411,28 @@ var generateTweet = function () {
           case 53:
             thirdOut = _context3.sent;
 
-          case 54:
+            // Ending with a question tends to look awkward unless it is a
+            // sentence on its own.
+            if (thirdOut.text.includes("?") && !thirdOut.text.includes(".")) {
+              thirdOut = null;
+            }
+            // If we don't have any result retry up to three times.
+
+          case 55:
             if (retriesLeft-- > 0 && !thirdOut) {
               _context3.next = 51;
               break;
             }
 
-          case 55:
+          case 56:
             if (thirdOut) {
-              _context3.next = 57;
+              _context3.next = 58;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 57:
+          case 58:
             text3 = thirdOut.text;
             tweet += text3;
 
@@ -453,7 +460,7 @@ var generateTweet = function () {
             tweet = _underscore2.default.unescapeHTML(tweet);
             return _context3.abrupt('return', pass && tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
 
-          case 72:
+          case 73:
           case 'end':
             return _context3.stop();
         }
@@ -758,7 +765,7 @@ var postTweet = function () {
             return _context8.abrupt('continue', 36);
 
           case 9:
-            if (tweet.substr(tweet.length - 2).includes(":")) {
+            if (_helpers2.default.containsMediaWord(tweet) || tweet.substr(tweet.length - 2).includes(":")) {
               rand = _helpers2.default.random(_constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE);
             }
 
@@ -873,7 +880,7 @@ var testTweet = function () {
             return _context9.abrupt('continue', 27);
 
           case 9:
-            if (tweet.substr(tweet.length - 2).includes(":")) {
+            if (_helpers2.default.containsMediaWord(tweet) || tweet.substr(tweet.length - 2).includes(":")) {
               rand = _helpers2.default.random(_constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE);
             }
 

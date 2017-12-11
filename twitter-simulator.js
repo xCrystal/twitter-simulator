@@ -229,6 +229,11 @@ const generateTweet = async () => {
       [3, retriesLeft],
       [firstOut.id, secondOut.id]
     );
+    // Ending with a question tends to look awkward unless it is a
+    // sentence on its own.
+    if (thirdOut.text.includes("?") && !thirdOut.text.includes(".")) {
+      thirdOut = null;
+    }
     // If we don't have any result retry up to three times.
   } while (retriesLeft -- > 0 && !thirdOut);
   if (!thirdOut) return false;
@@ -396,7 +401,10 @@ const postTweet = async () => {
     try {
       tweet = await generateTweet();
       if (!tweet) continue;
-      if (tweet.substr(tweet.length - 2).includes(":")) {
+      if (
+        H.containsMediaWord(tweet) ||
+        tweet.substr(tweet.length - 2).includes(":")
+      ) {
         rand = H.random(C.GIF_REGULAR_CHANCE + C.IMGUR_REGULAR_CHANCE);
       }
       if (rand < C.GIF_REGULAR_CHANCE) {
@@ -430,7 +438,10 @@ const testTweet = async () => {
     try {
       tweet = await generateTweet();
       if (!tweet) continue;
-      if (tweet.substr(tweet.length - 2).includes(":")) {
+      if (
+        H.containsMediaWord(tweet) ||
+        tweet.substr(tweet.length - 2).includes(":")
+      ) {
         rand = H.random(C.GIF_REGULAR_CHANCE + C.IMGUR_REGULAR_CHANCE);
       }
       if (rand < C.GIF_REGULAR_CHANCE) {

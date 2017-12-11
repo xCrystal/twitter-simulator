@@ -152,6 +152,18 @@ export default {
     return false;
   },
 
+  containsMediaWord: function(str) {
+    let mediaWords = ['picture', 'video', 'image', 'footage'];
+    let array = this.lowercaseSplitInWords(str);
+    do {
+      let elem = array.pop();
+      if (mediaWords.includes(elem)) {
+        return true;
+      }
+    } while (array.length);
+    return false;
+  },
+
   /* ARRAY */
 
   /* Returns false if array empty */
