@@ -62,7 +62,7 @@ export default {
 
   /* Returns falsey if no applicable match */
   /* Otherwise returns the resulting string in an object */
-  strUntil: function (str, word, withinFirst = C.MAX_CHARS) {
+  strUntil: function (str, word, withinFirst = C.MAX_TWEET_CHARS) {
     word = " " + word + " ";
     let _str = S.strLeft(str, word);
     let nextWord = S.strRight(str, word);
@@ -77,7 +77,7 @@ export default {
 
   /* Returns falsey if no applicable match */
   /* Otherwise returns the resulting string in an object */
-  strFrom: function (str, word, withinLast = C.MAX_CHARS) {
+  strFrom: function (str, word, withinLast = C.MAX_TWEET_CHARS) {
     word = " " + word + " ";
     let _str = S.strRightBack(str, word);
     let foundWithin = S.count(_str, " ") + S.count(_str, "\n");
@@ -94,7 +94,7 @@ export default {
     str,
     word,
     nextWordAt, /* translates to min length, an to ~(avg_len - 1) */
-    beforeLast = C.MAX_CHARS, /* translates to max length */
+    beforeLast = C.MAX_TWEET_CHARS, /* translates to max length */
   ) {
     word = " " + word + " ";
     let _str = S.strRight(str, word);

@@ -150,8 +150,8 @@ var getTweetThird = function () {
   // [numberOfThird, retriesLeft]
   searchMode) {
     var discardIds = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-    var maxLen = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants2.default.MAX_STRLEN;
-    var maxForcedLen = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants2.default.MAX_FORCED_STRLEN;
+    var maxLen = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants2.default.MAX_TWEET_THIRD_LEN;
+    var maxForcedLen = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants2.default.MAX_TWEET_THIRD_FORCED_LEN;
     var getMode, mode, tweets, output, text, id, specialDiscardsLeft, minLen;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
@@ -198,7 +198,7 @@ var getTweetThird = function () {
             // Tweets with mentions or hashtags tend to lead to unfunnier results,
             // so slightly discourage them.
 
-            specialDiscardsLeft = 2;
+            specialDiscardsLeft = _constants2.default.SPECIAL_CHAR_DISCARDS_ALLOWED;
 
           case 9:
             output = sampleFormatTweet(tweets);
@@ -299,7 +299,7 @@ var generateTweet = function () {
             } while (i > _twitterWords2.default.length - 1);
             word = _twitterWords2.default[i];
 
-            retriesLeft = 1;
+            retriesLeft = _constants2.default.THIRD_1_RETRIES_ALLOWED;
 
           case 12:
             _word = "";
@@ -320,12 +320,12 @@ var generateTweet = function () {
           case 19:
             text1 = firstOut.text;
             nextWord = firstOut.nextWord;
-            // ...or if we don't have a pair of words to hook the next part...
+            // Check if we can have a pair of common words to hook the next part.
             _word = _helpers2.default.hasWordInAnyArray(text1, 2, [_twitterWords2.default, _stopwords2.default]);
             word_ = _helpers2.default.hasWordInAnyArray(nextWord, 1, [_twitterWords2.default, _stopwords2.default]);
             if (_word === "i") _word = "I";
             if (word_ === "i") word_ = "I";
-            // ...retry up to one time.
+            // If we don't have any result retry up to one time.
 
           case 25:
             if (retriesLeft-- > 0 && !firstOut) {
@@ -350,7 +350,7 @@ var generateTweet = function () {
               tweet += word_ + " ";
             }
 
-            retriesLeft = 3;
+            retriesLeft = _constants2.default.THIRD_2_RETRIES_ALLOWED;
 
           case 31:
             _word2 = "";
@@ -372,12 +372,12 @@ var generateTweet = function () {
             text2 = secondOut.text;
             word2 = secondOut.word;
             nextWord2 = secondOut.nextWord;
-            // ...or if we don't have a pair of words to hook the next part...
+            // Check if we can have a pair of common words to hook the next part.
             _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default, _stopwords2.default]);
             word2_ = _helpers2.default.hasWordInAnyArray(nextWord2, 1, [_twitterWords2.default, _stopwords2.default]);
             if (_word2 === "i") _word2 = "I";
             if (word2_ === "i") word2_ = "I";
-            // ...retry up to three times.
+            // If we don't have any result retry up to three times.
 
           case 45:
             if (retriesLeft-- > 0 && !secondOut) {
@@ -402,7 +402,7 @@ var generateTweet = function () {
               tweet += word2_ + " ";
             }
 
-            retriesLeft = 3;
+            retriesLeft = _constants2.default.THIRD_3_RETRIES_ALLOWED;
 
           case 51:
             _context3.next = 53;
@@ -443,7 +443,7 @@ var generateTweet = function () {
           case 63:
 
             tweet = _underscore2.default.unescapeHTML(tweet);
-            return _context3.abrupt('return', tweet.length < _constants2.default.MAX_CHARS ? tweet : false);
+            return _context3.abrupt('return', tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
 
           case 65:
           case 'end':
@@ -750,9 +750,11 @@ var postTweet = function () {
             return _context8.abrupt('continue', 36);
 
           case 9:
-            if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
+            if (tweet.substr(tweet.length - 2).includes(":")) {
+              rand = _helpers2.default.random(_constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE);
+            }
 
-            if (!(rand < 0.15)) {
+            if (!(rand < _constants2.default.GIF_REGULAR_CHANCE)) {
               _context8.next = 16;
               break;
             }
@@ -766,7 +768,7 @@ var postTweet = function () {
             break;
 
           case 16:
-            if (!(rand < 0.4)) {
+            if (!(rand < _constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE)) {
               _context8.next = 20;
               break;
             }
@@ -863,9 +865,11 @@ var testTweet = function () {
             return _context9.abrupt('continue', 27);
 
           case 9:
-            if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
+            if (tweet.substr(tweet.length - 2).includes(":")) {
+              rand = _helpers2.default.random(_constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE);
+            }
 
-            if (!(rand < 0.15)) {
+            if (!(rand < _constants2.default.GIF_REGULAR_CHANCE)) {
               _context9.next = 16;
               break;
             }
@@ -879,7 +883,7 @@ var testTweet = function () {
             break;
 
           case 16:
-            if (!(rand < 0.4)) {
+            if (!(rand < _constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE)) {
               _context9.next = 20;
               break;
             }

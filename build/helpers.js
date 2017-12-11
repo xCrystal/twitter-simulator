@@ -88,7 +88,7 @@ exports.default = {
   /* Returns falsey if no applicable match */
   /* Otherwise returns the resulting string in an object */
   strUntil: function strUntil(str, word) {
-    var withinFirst = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants2.default.MAX_CHARS;
+    var withinFirst = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants2.default.MAX_TWEET_CHARS;
 
     word = " " + word + " ";
     var _str = _underscore2.default.strLeft(str, word);
@@ -101,7 +101,7 @@ exports.default = {
   /* Returns falsey if no applicable match */
   /* Otherwise returns the resulting string in an object */
   strFrom: function strFrom(str, word) {
-    var withinLast = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants2.default.MAX_CHARS;
+    var withinLast = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants2.default.MAX_TWEET_CHARS;
 
     word = " " + word + " ";
     var _str = _underscore2.default.strRightBack(str, word);
@@ -113,7 +113,7 @@ exports.default = {
   /* Otherwise returns, in an object, both the string and the new word */
   strBetween: function strBetween(str, word, nextWordAt) /* translates to max length */
   {
-    var beforeLast = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants2.default.MAX_CHARS;
+    var beforeLast = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants2.default.MAX_TWEET_CHARS;
 
     word = " " + word + " ";
     var _str = _underscore2.default.strRight(str, word);

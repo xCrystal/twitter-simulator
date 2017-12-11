@@ -83,8 +83,8 @@ const getTweetThird = async (
   searchMode,
   // Prevent the same tweet from being picked
   discardIds = [],
-  maxLen = C.MAX_STRLEN,
-  maxForcedLen = C.MAX_FORCED_STRLEN,
+  maxLen = C.MAX_TWEET_THIRD_LEN,
+  maxForcedLen = C.MAX_TWEET_THIRD_FORCED_LEN,
 ) => {
 
   const getMode = () => {
@@ -123,7 +123,7 @@ const getTweetThird = async (
   let id = "";
   // Tweets with mentions or hashtags tend to lead to unfunnier results,
   // so slightly discourage them.
-  let specialDiscardsLeft = 2;
+  let specialDiscardsLeft = C.SPECIAL_CHAR_DISCARDS_ALLOWED;
 
   do {
     do {
@@ -173,21 +173,20 @@ const generateTweet = async () => {
   } while (i > twitterwords.length - 1);
   word = twitterwords[i];
 
-  let retriesLeft = 1;
+  let retriesLeft = C.THIRD_1_RETRIES_ALLOWED;
   do {
     _word = "";
     word_ = "";
     firstOut = await getTweetThird(word, [1, retriesLeft]);
-    // If we don't have any result...
     if (!firstOut) continue;
     text1 = firstOut.text;
     nextWord = firstOut.nextWord;
-    // ...or if we don't have a pair of words to hook the next part...
+    // Check if we can have a pair of common words to hook the next part.
     _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
     word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords, stopwords]);
     if (_word === "i") _word = "I";
     if (word_ === "i") word_ = "I";
-    // ...retry up to one time.
+    // If we don't have any result retry up to one time.
   } while (retriesLeft -- > 0 && !firstOut);
   if (!firstOut) return false;
   tweet += text1;
@@ -198,22 +197,21 @@ const generateTweet = async () => {
     tweet += (word_ + " ");
   }
 
-  retriesLeft = 3;
+  retriesLeft = C.THIRD_2_RETRIES_ALLOWED;
   do {
     _word2 = "";
     word2_ = "";
     secondOut = await getTweetThird(word, [2, retriesLeft], firstOut.id);
-    // If we don't have any result...
     if (!secondOut) continue;
     text2 = secondOut.text;
     word2 = secondOut.word;
     nextWord2 = secondOut.nextWord;
-    // ...or if we don't have a pair of words to hook the next part...
+    // Check if we can have a pair of common words to hook the next part.
     _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
     word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords, stopwords]);
     if (_word2 === "i") _word2 = "I";
     if (word2_ === "i") word2_ = "I";
-    // ...retry up to three times.
+    // If we don't have any result retry up to three times.
   } while (retriesLeft -- > 0 && !secondOut);
   if (!secondOut) return false;
   tweet += text2;
@@ -224,14 +222,14 @@ const generateTweet = async () => {
     tweet += (word2_ +  " ");
   }
 
-  retriesLeft = 3;
+  retriesLeft = C.THIRD_3_RETRIES_ALLOWED;
   do {
     thirdOut = await getTweetThird(
       word2,
       [3, retriesLeft],
       [firstOut.id, secondOut.id]
     );
-  // Retry up to three times
+    // If we don't have any result retry up to three times.
   } while (retriesLeft -- > 0 && !thirdOut);
   if (!thirdOut) return false;
   text3 = thirdOut.text;
@@ -247,7 +245,7 @@ const generateTweet = async () => {
   }
 
   tweet = S.unescapeHTML(tweet);
-  return (tweet.length < C.MAX_CHARS ? tweet : false);
+  return (tweet.length < C.MAX_TWEET_CHARS ? tweet : false);
 };
 
 const uploadMediaToTwitter = async (base64, mimeType) => {
@@ -375,10 +373,12 @@ const postTweet = async () => {
     try {
       tweet = await generateTweet();
       if (!tweet) continue;
-      if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
-      if (rand < 0.15) {
+      if (tweet.substr(tweet.length - 2).includes(":")) {
+        rand = H.random(C.GIF_REGULAR_CHANCE + C.IMGUR_REGULAR_CHANCE);
+      }
+      if (rand < C.GIF_REGULAR_CHANCE) {
         mediaId = await generateGif(tweet);
-      } else if (rand < 0.4) {
+      } else if (rand < C.GIF_REGULAR_CHANCE + C.IMGUR_REGULAR_CHANCE) {
         mediaId = await generateImgur(tweet);
       }
       if (tweet && !mediaId) {
@@ -407,10 +407,12 @@ const testTweet = async () => {
     try {
       tweet = await generateTweet();
       if (!tweet) continue;
-      if (tweet.substr(tweet.length - 2).includes(":")) rand /= 2.5;
-      if (rand < 0.15) {
+      if (tweet.substr(tweet.length - 2).includes(":")) {
+        rand = H.random(C.GIF_REGULAR_CHANCE + C.IMGUR_REGULAR_CHANCE);
+      }
+      if (rand < C.GIF_REGULAR_CHANCE) {
         mediaId = await generateGif(tweet);
-      } else if (rand < 0.4) {
+      } else if (rand < C.GIF_REGULAR_CHANCE + C.IMGUR_REGULAR_CHANCE) {
         mediaId = await generateImgur(tweet);
       }
       console.log("(*** TWEET ***)", tweet);
