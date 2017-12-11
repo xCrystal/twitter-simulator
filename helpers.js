@@ -33,11 +33,13 @@ export default {
 
   randomTimeInterval: function () {
     const days = (n) => 1000 * 60 * 60 * 24 * n;
-    let delta = this.random(days(12), 0);
+    const formatDate = (date) => date.toISOString().slice(0, 10);
     let curTime = new Date().getTime();
+    let until = curTime - this.random(days(8), days(2));
+    let since = until - days(2);
     return {
-      "since": new Date(curTime - delta),
-      "until": new Date(curTime - delta + days(5)),
+      "since": formatDate(new Date(since)),
+      "until": formatDate(new Date(until)),
     };
   },
 

@@ -43,16 +43,26 @@ const T = new Twitter(CONFIG.twitter);
 const G = Giphy(CONFIG.giphy.id);
 const IMGUR_ID = CONFIG.imgur.id;
 
-const search = async (word, since, until, type, count = 100) => {
-  return await T.get("search/tweets", {
-    "q": word + " AND -filter:retweets",
-    "lang": "en",
-    "since": since,
-    "until": until,
-    "result_type": type,
-    "tweet_mode": "extended",
-    "count": count
-  });
+const search = async (word, type, since = 0, until = 0) => {
+  if (!since || !until) {
+    return await T.get("search/tweets", {
+      "q": word + " AND -filter:retweets",
+      "lang": "en",
+      "result_type": type,
+      "tweet_mode": "extended",
+      "count": 100
+    });
+  } else {
+    return await T.get("search/tweets", {
+      "q": word + " AND -filter:retweets",
+      "lang": "en",
+      "since": since,
+      "until": until,
+      "result_type": type,
+      "tweet_mode": "extended",
+      "count": 100
+    });
+  }
 };
 
 const sampleFormatTweet = (tweets) => {
@@ -69,18 +79,46 @@ const sampleFormatTweet = (tweets) => {
 
 const getTweetThird = async (
   word,
-  whichThird,
-  searchType,
+  // [numberOfThird, retriesLeft]
+  searchMode,
   // Prevent the same tweet from being picked
   discardIds = [],
   maxLen = C.MAX_STRLEN,
   maxForcedLen = C.MAX_FORCED_STRLEN,
   // Tweets with mentions or hashtags tend to lead to unfunnier results,
   // so slightly discourage them.
-  maxSpecialDiscards = 3
+  specialDiscardsLeft = 3
 ) => {
-  let time = H.randomTimeInterval();
-  let tweets = await search(word, time.since, time.until, searchType, 100);
+
+  const getMode = () => {
+    let time = H.randomTimeInterval();
+    let rand = H.random(1) > 0.5;
+    switch (searchMode) {
+      // [numberOfThird, retriesLeft]
+      case [1, 0]:
+      case [1, 1]:
+      default:
+        return {
+          "type": "popular",
+          "since": (rand ? 0 : time.since),
+          "until": (rand ? 0 : time.until)
+        };
+      case [2, 0]:
+      case [3, 0]:
+        return { "type": "popular", "since": 0, "until": 0 }
+      case [2, 1]:
+      case [2, 2]:
+      case [3, 1]:
+      case [3, 2]:
+        return { "type": "popular", "since": time.since, "until": time.until }
+      case [2, 3]:
+      case [3, 3]:
+        return { "type": "recent", "since": 0, "until": 0 }
+    }
+  };
+
+  let mode = getMode();
+  let tweets = await search(word, mode.type, mode.since, mode.until);
   let output = "";
   let text = "";
   let id = "";
@@ -92,19 +130,19 @@ const getTweetThird = async (
       id = output.id;
     } while (
       discardIds.includes(id) ||
-      maxSpecialDiscards -- > 0 &&
+      specialDiscardsLeft -- > 0 &&
       (text.includes("@") || text.includes("#"))
     );
     if (!text) return false;
-    switch (whichThird) {
-      case "first":
+    switch (searchMode[0]) {
+      case 1:
         output = H.strUntil(text, word, maxLen);
         break;
-      case "second":
+      case 2:
         let minLen = H.randomDiscrete(maxLen, 1);
         output = H.strBetween(text, word, minLen, maxForcedLen);
         break;
-      case "third":
+      case 3:
         output = H.strFrom(text, word, maxLen);
         break;
       default:
@@ -113,7 +151,7 @@ const getTweetThird = async (
   } while (!output);
 
   output.id = id;
-  console.log("(*", whichThird, " - ", id, "*)", output.text);
+  console.log("(*", searchMode[0], " - ", id, "*)", output.text);
   return output.text === " " ? false : output;
 };
 
@@ -123,7 +161,6 @@ const generateTweet = async () => {
   let word = "", _word = "", word_ = "";
   let word2 = "", _word2 = "", word2_ = "";
   let nextWord = "", nextWord2 = "";
-  let searchType = "popular";
   let firstOut = "";
   let secondOut = "";
   let thirdOut = "";
@@ -133,9 +170,9 @@ const generateTweet = async () => {
   } while (i > twitterwords.length - 1);
   word = twitterwords[i];
 
-  let retryCount = 1;
+  let retriesLeft = 1;
   do {
-    firstOut = await getTweetThird(word, "first", "popular");
+    firstOut = await getTweetThird(word, [1, retriesLeft]);
     // If we don't have any result...
     if (!firstOut) continue;
     text1 = firstOut.text;
@@ -144,25 +181,19 @@ const generateTweet = async () => {
     _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
     word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords, stopwords]);
     // ...retry up to one time.
-  } while (retryCount -- > 0 && !_word && !word_);
+  } while (retriesLeft -- > 0 && !_word && !word_);
   if (!firstOut) return false;
   tweet += text1;
   if (_word) {
     word = _word + " " + word;
-    searchType = "mixed";
   } else if (word_) {
     word = word + " " + word_;
     tweet += (word_ + " ");
-    searchType = "mixed";
   }
 
-  retryCount = 2;
+  retriesLeft = 3;
   do {
-    secondOut = await getTweetThird(
-      // Always use the "popular" search on the first try, otherwise use
-      // the mixed search if we need to match two words.
-      word, "second", retryCount == 2 ? "popular" : searchType, firstOut.id
-    );
+    secondOut = await getTweetThird(word, [2, retriesLeft], firstOut.id);
     // If we don't have any result...
     if (!secondOut) continue;
     text2 = secondOut.text;
@@ -171,33 +202,26 @@ const generateTweet = async () => {
     // ...or if we don't have a pair of words to hook the next part...
     _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
     word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords, stopwords]);
-    // ...retry up to two times.
-  } while (retryCount -- > 0 && !_word2 && !word2_);
+    // ...retry up to three times.
+  } while (retriesLeft -- > 0 && !_word2 && !word2_);
   if (!secondOut) return false;
   tweet += text2;
   if (_word2) {
     word2 = _word2 + " " + word2;
-    searchType = "mixed";
   } else if (word2_) {
     word2 = word2 + " " + word2_;
     tweet += (word2_ +  " ");
-    searchType = "mixed";
-  } else {
-    searchType = "popular";
   }
 
-  retryCount = 2;
+  retriesLeft = 3;
   do {
     thirdOut = await getTweetThird(
       word2,
-      "third",
-      // Always use the "popular" search on the first try, otherwise use
-      // the mixed search if we need to match two words.
-      retryCount == 2 ? "popular" : searchType,
+      [3, retriesLeft],
       [firstOut.id, secondOut.id]
     );
-  // Retry up to two times
-  } while (retryCount -- > 0 && !thirdOut);
+  // Retry up to three times
+  } while (retriesLeft -- > 0 && !thirdOut);
   if (!thirdOut) return false;
   text3 = thirdOut.text;
   tweet += text3;
