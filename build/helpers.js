@@ -194,7 +194,7 @@ exports.default = {
   },
 
   containsMediaWord: function containsMediaWord(str) {
-    var mediaWords = ['picture', 'video', 'image', 'footage'];
+    var mediaWords = ['picture', 'video', 'image', 'footage', 'coverage', 'watch', 'trailer'];
     var array = this.lowercaseSplitInWords(str);
     do {
       var elem = array.pop();

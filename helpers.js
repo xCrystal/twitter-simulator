@@ -153,7 +153,15 @@ export default {
   },
 
   containsMediaWord: function(str) {
-    let mediaWords = ['picture', 'video', 'image', 'footage'];
+    let mediaWords = [
+      'picture',
+      'video',
+      'image',
+      'footage',
+      'coverage',
+      'watch',
+      'trailer',
+    ];
     let array = this.lowercaseSplitInWords(str);
     do {
       let elem = array.pop();
