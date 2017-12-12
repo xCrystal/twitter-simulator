@@ -458,9 +458,13 @@ var generateTweet = function () {
             (numWords1 + numWords2 >= 7 || len1 + len2 >= 35) && (numWords1 + numWords3 >= 7 || len1 + len3 >= 35) && (numWords2 + numWords3 >= 7 || len2 + len3 >= 35)) pass = true;
 
             tweet = _underscore2.default.unescapeHTML(tweet);
+            // Try to avoid unfinished quotes
+            if (_underscore2.default.count(tweet, '"') == 1) {
+              tweet = tweet.replace('"', '');
+            }
             return _context3.abrupt('return', pass && tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
 
-          case 73:
+          case 74:
           case 'end':
             return _context3.stop();
         }

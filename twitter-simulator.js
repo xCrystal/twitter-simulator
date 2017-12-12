@@ -276,6 +276,10 @@ const generateTweet = async () => {
   ) pass = true;
 
   tweet = S.unescapeHTML(tweet);
+  // Try to avoid unfinished quotes
+  if (S.count(tweet, '"') == 1) {
+    tweet = tweet.replace('"', '');
+  }
   return (pass && tweet.length < C.MAX_TWEET_CHARS ? tweet : false);
 };
 
