@@ -161,36 +161,13 @@ exports.default = {
     return this.splitInWords(str).length;
   },
 
-  /* wordPos is counted from right to left or string*/
-  hasWordInAnyArray: function hasWordInAnyArray(str, wordPos, inArrays) {
+  /* wordPos is counted from right to left or string */
+  /* Returns, at index, 0 (falsey) if word is not found, index + 1 if found */
+  hasWordInArray: function hasWordInArray(str, wordPos, inArray) {
     var array = this.lowercaseSplitInWords(str);
     var word = array[array.length - wordPos];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = inArrays[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var a = _step.value;
-
-        if (a.includes(word)) return word;
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-
-    return false;
+    var index = inArray.indexOf(word) + 1;
+    return { "word": word, "index": index };
   },
 
   containsMediaWord: function containsMediaWord(str) {

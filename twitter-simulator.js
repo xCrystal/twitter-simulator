@@ -186,44 +186,47 @@ const generateTweet = async () => {
     text1 = firstOut.text;
     nextWord = firstOut.nextWord;
     // Check if we can have a pair of common words to hook the next part.
-    _word = H.hasWordInAnyArray(text1, 2, [twitterwords]);
-    word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords]);
+    _word = H.hasWordInArray(text1, 2, twitterwords);
+    word_ = H.hasWordInArray(nextWord, 1, twitterwords);
     if (_word === "i") _word = "I";
     if (word_ === "i") word_ = "I";
     // If we don't have any result retry up to one time.
   } while (retriesLeft -- > 0 && !firstOut);
   if (!firstOut) return false;
   tweet += text1;
-  if (_word) {
-    word = _word + " " + word;
-  } else if (word_) {
-    word = word + " " + word_;
-    tweet += (word_ + " ");
+  // If both neighbout words could work, choose the most common one.
+  if (_word.index && _word.index > word_.index) {
+    word = _word.word + " " + word;
+  } else if (word_.index) {
+    word = word + " " + word_.word;
+    tweet += (word_.word + " ");
   }
 
   retriesLeft = C.THIRD_2_RETRIES_ALLOWED;
   do {
     _word2 = "";
     word2_ = "";
+    await console.log(word)
     secondOut = await getTweetThird(word, [2, retriesLeft], firstOut.id);
     if (!secondOut) continue;
     text2 = secondOut.text;
     word2 = secondOut.word;
     nextWord2 = secondOut.nextWord;
     // Check if we can have a pair of common words to hook the next part.
-    _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords]);
-    word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords]);
+    _word2 = H.hasWordInArray(text2, 2, twitterwords);
+    word2_ = H.hasWordInArray(nextWord2, 1, twitterwords);
     if (_word2 === "i") _word2 = "I";
     if (word2_ === "i") word2_ = "I";
     // If we don't have any result retry up to three times.
   } while (retriesLeft -- > 0 && !secondOut);
   if (!secondOut) return false;
   tweet += text2;
-  if (_word2) {
-    word2 = _word2 + " " + word2;
-  } else if (word2_) {
-    word2 = word2 + " " + word2_;
-    tweet += (word2_ +  " ");
+  // If both neighbout words could work, choose the most common one.
+  if (_word2.index && _word2.index > word_.index) {
+    word2 = _word2.word + " " + word2;
+  } else if (word2_.index) {
+    word2 = word2 + " " + word2_.index;
+    tweet += (word2_.index +  " ");
   }
 
   retriesLeft = C.THIRD_3_RETRIES_ALLOWED;

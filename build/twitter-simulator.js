@@ -235,39 +235,40 @@ var getTweetThird = function () {
 
           case 17:
             _context2.t0 = searchMode[0];
-            _context2.next = _context2.t0 === 1 ? 20 : _context2.t0 === 2 ? 22 : _context2.t0 === 3 ? 25 : 27;
+            _context2.next = _context2.t0 === 1 ? 20 : _context2.t0 === 2 ? 22 : _context2.t0 === 3 ? 26 : 28;
             break;
 
           case 20:
             output = _helpers2.default.strUntil(text, word, maxLen);
-            return _context2.abrupt('break', 28);
+            return _context2.abrupt('break', 29);
 
           case 22:
             minLen = _helpers2.default.randomDiscrete(maxLen, 1);
 
             output = _helpers2.default.strBetween(text, word, minLen, maxForcedLen);
-            return _context2.abrupt('break', 28);
+            console.log(output.text);
+            return _context2.abrupt('break', 29);
 
-          case 25:
+          case 26:
             output = _helpers2.default.strFrom(text, word, maxLen);
-            return _context2.abrupt('break', 28);
-
-          case 27:
-            output = "";
+            return _context2.abrupt('break', 29);
 
           case 28:
+            output = "";
+
+          case 29:
             if (!output) {
               _context2.next = 9;
               break;
             }
 
-          case 29:
+          case 30:
 
             output.id = id;
             console.log("(*", searchMode[0], " - ", id, "*)", output.text);
             return _context2.abrupt('return', output.text === " " ? false : output);
 
-          case 32:
+          case 33:
           case 'end':
             return _context2.stop();
         }
@@ -325,8 +326,8 @@ var generateTweet = function () {
             text1 = firstOut.text;
             nextWord = firstOut.nextWord;
             // Check if we can have a pair of common words to hook the next part.
-            _word = _helpers2.default.hasWordInAnyArray(text1, 2, [_twitterWords2.default]);
-            word_ = _helpers2.default.hasWordInAnyArray(nextWord, 1, [_twitterWords2.default]);
+            _word = _helpers2.default.hasWordInArray(text1, 2, _twitterWords2.default);
+            word_ = _helpers2.default.hasWordInArray(nextWord, 1, _twitterWords2.default);
             if (_word === "i") _word = "I";
             if (word_ === "i") word_ = "I";
             // If we don't have any result retry up to one time.
@@ -347,11 +348,12 @@ var generateTweet = function () {
 
           case 28:
             tweet += text1;
-            if (_word) {
-              word = _word + " " + word;
-            } else if (word_) {
-              word = word + " " + word_;
-              tweet += word_ + " ";
+            // If both neighbout words could work, choose the most common one.
+            if (_word.index && _word.index > word_.index) {
+              word = _word.word + " " + word;
+            } else if (word_.index) {
+              word = word + " " + word_.word;
+              tweet += word_.word + " ";
             }
 
             retriesLeft = _constants2.default.THIRD_2_RETRIES_ALLOWED;
@@ -360,59 +362,64 @@ var generateTweet = function () {
             _word2 = "";
             word2_ = "";
             _context3.next = 35;
-            return getTweetThird(word, [2, retriesLeft], firstOut.id);
+            return console.log(word);
 
           case 35:
+            _context3.next = 37;
+            return getTweetThird(word, [2, retriesLeft], firstOut.id);
+
+          case 37:
             secondOut = _context3.sent;
 
             if (secondOut) {
-              _context3.next = 38;
+              _context3.next = 40;
               break;
             }
 
-            return _context3.abrupt('continue', 45);
+            return _context3.abrupt('continue', 47);
 
-          case 38:
+          case 40:
             text2 = secondOut.text;
             word2 = secondOut.word;
             nextWord2 = secondOut.nextWord;
             // Check if we can have a pair of common words to hook the next part.
-            _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default]);
-            word2_ = _helpers2.default.hasWordInAnyArray(nextWord2, 1, [_twitterWords2.default]);
+            _word2 = _helpers2.default.hasWordInArray(text2, 2, _twitterWords2.default);
+            word2_ = _helpers2.default.hasWordInArray(nextWord2, 1, _twitterWords2.default);
             if (_word2 === "i") _word2 = "I";
             if (word2_ === "i") word2_ = "I";
             // If we don't have any result retry up to three times.
 
-          case 45:
+          case 47:
             if (retriesLeft-- > 0 && !secondOut) {
               _context3.next = 31;
               break;
             }
 
-          case 46:
+          case 48:
             if (secondOut) {
-              _context3.next = 48;
+              _context3.next = 50;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 48:
+          case 50:
             tweet += text2;
-            if (_word2) {
-              word2 = _word2 + " " + word2;
-            } else if (word2_) {
-              word2 = word2 + " " + word2_;
-              tweet += word2_ + " ";
+            // If both neighbout words could work, choose the most common one.
+            if (_word2.index && _word2.index > word_.index) {
+              word2 = _word2.word + " " + word2;
+            } else if (word2_.index) {
+              word2 = word2 + " " + word2_.index;
+              tweet += word2_.index + " ";
             }
 
             retriesLeft = _constants2.default.THIRD_3_RETRIES_ALLOWED;
 
-          case 51:
-            _context3.next = 53;
+          case 53:
+            _context3.next = 55;
             return getTweetThird(word2, [3, retriesLeft], [firstOut.id, secondOut.id]);
 
-          case 53:
+          case 55:
             thirdOut = _context3.sent;
 
             // Ending with a question tends to look awkward unless it is a
@@ -422,21 +429,21 @@ var generateTweet = function () {
             }
             // If we don't have any result retry up to three times.
 
-          case 55:
+          case 57:
             if (retriesLeft-- > 0 && !thirdOut) {
-              _context3.next = 51;
+              _context3.next = 53;
               break;
             }
 
-          case 56:
+          case 58:
             if (thirdOut) {
-              _context3.next = 58;
+              _context3.next = 60;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 58:
+          case 60:
             text3 = thirdOut.text;
             tweet += text3;
 
@@ -468,7 +475,7 @@ var generateTweet = function () {
             }
             return _context3.abrupt('return', pass && tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
 
-          case 74:
+          case 76:
           case 'end':
             return _context3.stop();
         }

@@ -142,14 +142,13 @@ export default {
     return this.splitInWords(str).length;
   },
 
-  /* wordPos is counted from right to left or string*/
-  hasWordInAnyArray: function (str, wordPos, inArrays) {
+  /* wordPos is counted from right to left or string */
+  /* Returns, at index, 0 (falsey) if word is not found, index + 1 if found */
+  hasWordInArray: function (str, wordPos, inArray) {
     let array = this.lowercaseSplitInWords(str);
     let word = array[array.length - wordPos];
-    for (let a of inArrays) {
-      if (a.includes(word)) return word;
-    }
-    return false;
+    let index = inArray.indexOf(word) + 1;
+    return { "word": word, "index": index };
   },
 
   containsMediaWord: function(str) {
