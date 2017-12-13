@@ -67,9 +67,9 @@ export default {
     let _str = S.strLeft(str, word);
     let nextWord = S.strRight(str, word);
     nextWord = S.strLeft(nextWord, " ");
-    let foundWithin = S.count(_str, " ") + S.count(_str, "\n");
+    let foundWithin = this.numWords(_str);
     return (
-      _str === str || foundWithin >= withinFirst ?
+      _str === str || !foundWithin || foundWithin >= withinFirst ?
       "" :
       { "text": _str + word, "nextWord": nextWord }
     );
@@ -80,9 +80,9 @@ export default {
   strFrom: function (str, word, withinLast = C.MAX_TWEET_CHARS) {
     word = " " + word + " ";
     let _str = S.strRightBack(str, word);
-    let foundWithin = S.count(_str, " ") + S.count(_str, "\n");
+    let foundWithin = this.numWords(_str);
     return (
-      _str === str || foundWithin >= withinLast ?
+      _str === str || !foundWithin || foundWithin >= withinLast ?
       "" :
       { "text": _str }
     );
@@ -98,8 +98,8 @@ export default {
   ) {
     word = " " + word + " ";
     let _str = S.strRight(str, word);
-    let foundBefore = S.count(_str, " ") + S.count(_str, "\n");
-    if (_str === str || foundBefore > beforeLast) return "";
+    let foundBefore = this.numWords(_str);
+    if (_str === str || !foundBefore || foundBefore > beforeLast) return "";
     let ar = this.splitInWords(_str);
     do {
       let closingWord = ar[nextWordAt];
@@ -157,6 +157,7 @@ export default {
       'picture',
       'video',
       'image',
+      'photo',
       'footage',
       'coverage',
       'watch',

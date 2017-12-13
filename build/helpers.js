@@ -94,8 +94,8 @@ exports.default = {
     var _str = _underscore2.default.strLeft(str, word);
     var nextWord = _underscore2.default.strRight(str, word);
     nextWord = _underscore2.default.strLeft(nextWord, " ");
-    var foundWithin = _underscore2.default.count(_str, " ") + _underscore2.default.count(_str, "\n");
-    return _str === str || foundWithin >= withinFirst ? "" : { "text": _str + word, "nextWord": nextWord };
+    var foundWithin = this.numWords(_str);
+    return _str === str || !foundWithin || foundWithin >= withinFirst ? "" : { "text": _str + word, "nextWord": nextWord };
   },
 
   /* Returns falsey if no applicable match */
@@ -105,8 +105,8 @@ exports.default = {
 
     word = " " + word + " ";
     var _str = _underscore2.default.strRightBack(str, word);
-    var foundWithin = _underscore2.default.count(_str, " ") + _underscore2.default.count(_str, "\n");
-    return _str === str || foundWithin >= withinLast ? "" : { "text": _str };
+    var foundWithin = this.numWords(_str);
+    return _str === str || !foundWithin || foundWithin >= withinLast ? "" : { "text": _str };
   },
 
   /* Returns falsey if no applicable match */
@@ -117,8 +117,8 @@ exports.default = {
 
     word = " " + word + " ";
     var _str = _underscore2.default.strRight(str, word);
-    var foundBefore = _underscore2.default.count(_str, " ") + _underscore2.default.count(_str, "\n");
-    if (_str === str || foundBefore > beforeLast) return "";
+    var foundBefore = this.numWords(_str);
+    if (_str === str || !foundBefore || foundBefore > beforeLast) return "";
     var ar = this.splitInWords(_str);
     do {
       var closingWord = ar[nextWordAt];
@@ -194,7 +194,7 @@ exports.default = {
   },
 
   containsMediaWord: function containsMediaWord(str) {
-    var mediaWords = ['picture', 'video', 'image', 'footage', 'coverage', 'watch', 'trailer'];
+    var mediaWords = ['picture', 'video', 'image', 'photo', 'footage', 'coverage', 'watch', 'trailer'];
     var array = this.lowercaseSplitInWords(str);
     do {
       var elem = array.pop();

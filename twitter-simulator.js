@@ -107,11 +107,15 @@ const getTweetThird = async (
         return { "type": "popular", "since": 0, "until": 0 }
       case [2, 1]:
       case [2, 2]:
+      case [2, 3]:
       case [3, 1]:
       case [3, 2]:
-        return { "type": "popular", "since": time.since, "until": time.until }
-      case [2, 3]:
       case [3, 3]:
+        return { "type": "popular", "since": time.since, "until": time.until }
+      case [2, 4]:
+      case [2, 5]:
+      case [3, 4]:
+      case [3, 5]:
         return { "type": "recent", "since": 0, "until": 0 }
     }
   };
