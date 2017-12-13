@@ -186,8 +186,8 @@ const generateTweet = async () => {
     text1 = firstOut.text;
     nextWord = firstOut.nextWord;
     // Check if we can have a pair of common words to hook the next part.
-    _word = H.hasWordInAnyArray(text1, 2, [twitterwords, stopwords]);
-    word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords, stopwords]);
+    _word = H.hasWordInAnyArray(text1, 2, [twitterwords]);
+    word_ = H.hasWordInAnyArray(nextWord, 1, [twitterwords]);
     if (_word === "i") _word = "I";
     if (word_ === "i") word_ = "I";
     // If we don't have any result retry up to one time.
@@ -211,8 +211,8 @@ const generateTweet = async () => {
     word2 = secondOut.word;
     nextWord2 = secondOut.nextWord;
     // Check if we can have a pair of common words to hook the next part.
-    _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords, stopwords]);
-    word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords, stopwords]);
+    _word2 = H.hasWordInAnyArray(text2, 2, [twitterwords]);
+    word2_ = H.hasWordInAnyArray(nextWord2, 1, [twitterwords]);
     if (_word2 === "i") _word2 = "I";
     if (word2_ === "i") word2_ = "I";
     // If we don't have any result retry up to three times.

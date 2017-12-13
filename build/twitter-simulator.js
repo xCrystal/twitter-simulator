@@ -325,8 +325,8 @@ var generateTweet = function () {
             text1 = firstOut.text;
             nextWord = firstOut.nextWord;
             // Check if we can have a pair of common words to hook the next part.
-            _word = _helpers2.default.hasWordInAnyArray(text1, 2, [_twitterWords2.default, _stopwords2.default]);
-            word_ = _helpers2.default.hasWordInAnyArray(nextWord, 1, [_twitterWords2.default, _stopwords2.default]);
+            _word = _helpers2.default.hasWordInAnyArray(text1, 2, [_twitterWords2.default]);
+            word_ = _helpers2.default.hasWordInAnyArray(nextWord, 1, [_twitterWords2.default]);
             if (_word === "i") _word = "I";
             if (word_ === "i") word_ = "I";
             // If we don't have any result retry up to one time.
@@ -377,8 +377,8 @@ var generateTweet = function () {
             word2 = secondOut.word;
             nextWord2 = secondOut.nextWord;
             // Check if we can have a pair of common words to hook the next part.
-            _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default, _stopwords2.default]);
-            word2_ = _helpers2.default.hasWordInAnyArray(nextWord2, 1, [_twitterWords2.default, _stopwords2.default]);
+            _word2 = _helpers2.default.hasWordInAnyArray(text2, 2, [_twitterWords2.default]);
+            word2_ = _helpers2.default.hasWordInAnyArray(nextWord2, 1, [_twitterWords2.default]);
             if (_word2 === "i") _word2 = "I";
             if (word2_ === "i") word2_ = "I";
             // If we don't have any result retry up to three times.
