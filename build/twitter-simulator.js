@@ -243,10 +243,11 @@ var getTweetThird = function () {
             return _context2.abrupt('break', 29);
 
           case 22:
-            minLen = _helpers2.default.randomDiscrete(maxLen, 1);
+            // Be more permissive if necessary; adjust for no. of retries left
+            maxLen -= (_constants2.default.THIRD_2_RETRIES_ALLOWED - searchMode[1]) * 2;
+            minLen = _helpers2.default.randomDiscrete(Math.max(6, maxLen), 1);
 
             output = _helpers2.default.strBetween(text, word, minLen, maxForcedLen);
-            console.log(output.text);
             return _context2.abrupt('break', 29);
 
           case 26:
@@ -362,23 +363,19 @@ var generateTweet = function () {
             _word2 = "";
             word2_ = "";
             _context3.next = 35;
-            return console.log(word);
-
-          case 35:
-            _context3.next = 37;
             return getTweetThird(word, [2, retriesLeft], firstOut.id);
 
-          case 37:
+          case 35:
             secondOut = _context3.sent;
 
             if (secondOut) {
-              _context3.next = 40;
+              _context3.next = 38;
               break;
             }
 
-            return _context3.abrupt('continue', 47);
+            return _context3.abrupt('continue', 45);
 
-          case 40:
+          case 38:
             text2 = secondOut.text;
             word2 = secondOut.word;
             nextWord2 = secondOut.nextWord;
@@ -389,21 +386,21 @@ var generateTweet = function () {
             if (word2_ === "i") word2_ = "I";
             // If we don't have any result retry up to three times.
 
-          case 47:
+          case 45:
             if (retriesLeft-- > 0 && !secondOut) {
               _context3.next = 31;
               break;
             }
 
-          case 48:
+          case 46:
             if (secondOut) {
-              _context3.next = 50;
+              _context3.next = 48;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 50:
+          case 48:
             tweet += text2;
             // If both neighbout words could work, choose the most common one.
             if (_word2.index && _word2.index > word_.index) {
@@ -415,11 +412,11 @@ var generateTweet = function () {
 
             retriesLeft = _constants2.default.THIRD_3_RETRIES_ALLOWED;
 
-          case 53:
-            _context3.next = 55;
+          case 51:
+            _context3.next = 53;
             return getTweetThird(word2, [3, retriesLeft], [firstOut.id, secondOut.id]);
 
-          case 55:
+          case 53:
             thirdOut = _context3.sent;
 
             // Ending with a question tends to look awkward unless it is a
@@ -429,21 +426,21 @@ var generateTweet = function () {
             }
             // If we don't have any result retry up to three times.
 
-          case 57:
+          case 55:
             if (retriesLeft-- > 0 && !thirdOut) {
-              _context3.next = 53;
+              _context3.next = 51;
               break;
             }
 
-          case 58:
+          case 56:
             if (thirdOut) {
-              _context3.next = 60;
+              _context3.next = 58;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 60:
+          case 58:
             text3 = thirdOut.text;
             tweet += text3;
 
@@ -475,7 +472,7 @@ var generateTweet = function () {
             }
             return _context3.abrupt('return', pass && tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
 
-          case 76:
+          case 74:
           case 'end':
             return _context3.stop();
         }

@@ -146,7 +146,9 @@ const getTweetThird = async (
         output = H.strUntil(text, word, maxLen);
         break;
       case 2:
-        let minLen = H.randomDiscrete(maxLen, 1);
+        // Be more permissive if necessary; adjust for no. of retries left
+        maxLen -= (C.THIRD_2_RETRIES_ALLOWED - searchMode[1]) * 2;
+        let minLen = H.randomDiscrete(Math.max(6, maxLen), 1);
         output = H.strBetween(text, word, minLen, maxForcedLen);
         break;
       case 3:
@@ -206,7 +208,6 @@ const generateTweet = async () => {
   do {
     _word2 = "";
     word2_ = "";
-    await console.log(word)
     secondOut = await getTweetThird(word, [2, retriesLeft], firstOut.id);
     if (!secondOut) continue;
     text2 = secondOut.text;
