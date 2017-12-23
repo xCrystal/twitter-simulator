@@ -6,19 +6,21 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
   TIME_BETWEEN_TWEETS: 60000 * 20,
 
-  SHORT_TWEET_CHANCE: 0.4,
-
+  SHORT_TWEET_CHANCE: 0.3,
+  SEPARATE_BY_DOT_CHANCE: 0.3,
   /* Temporarily turn to 0. With the current search method, they tend to
   ruin the tweet if anything. Might come up with something better soon. */
   GIF_REGULAR_CHANCE: 0,
   IMGUR_REGULAR_CHANCE: 0,
+
+  LAST_HOOK_TWITTER_WORD: 25 - 1,
 
   /* Length of each third will be between 1 and MAX_TWEET_THIRD_LEN */
   MAX_TWEET_THIRD_LEN: 15,
   MAX_TWEET_THIRD_LEN_SHORT: 4,
   /* The middle third can be as long as MAX_TWEET_THIRD_FORCED_LEN if needed */
   MAX_TWEET_THIRD_FORCED_LEN: 20,
-  MAX_TWEET_THIRD_FORCED_LEN_SHORT: 6,
+  MAX_TWEET_THIRD_FORCED_LEN_SHORT: 7,
 
   MAX_TWEET_CHARS: 280,
 

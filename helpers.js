@@ -73,6 +73,8 @@ export default {
   strUntil: function (str, word, withinFirst = C.MAX_TWEET_CHARS) {
     word = this.appendSpaces(word);
     let _str = S.strLeft(str, word);
+    // Don't separate by dot if it's an acronym.
+    if (_str.charAt(_str.length - 2) === ".") return "";
     let nextWord = S.strRight(str, word);
     nextWord = S.strLeft(nextWord, " ");
     let foundWithin = this.numWords(_str);
@@ -111,7 +113,9 @@ export default {
     let ar = this.splitInWords(_str);
     do {
       let closingWord = ar[nextWordAt];
-      if (twitterwords.includes(closingWord)) {
+      if (
+        twitterwords.slice(0, C.LAST_HOOK_TWITTER_WORD).includes(closingWord)
+      ) {
         _str = S.strLeft(_str, this.appendSpaces(closingWord));
         if (_str !== str) {
           let nextWord = S.strRightBack(str, closingWord);

@@ -150,8 +150,9 @@ var getTweetThird = function () {
   // [numberOfThird, retriesLeft]
   searchMode) {
     var discardIds = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-    var maxLen = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants2.default.MAX_TWEET_THIRD_LEN;
-    var maxForcedLen = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants2.default.MAX_TWEET_THIRD_FORCED_LEN;
+    var separateByDot = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var maxLen = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants2.default.MAX_TWEET_THIRD_LEN;
+    var maxForcedLen = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : _constants2.default.MAX_TWEET_THIRD_FORCED_LEN;
     var getMode, mode, tweets, output, text, id, specialDiscardsLeft, minLen;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
@@ -204,72 +205,74 @@ var getTweetThird = function () {
 
             specialDiscardsLeft = _constants2.default.SPECIAL_CHAR_DISCARDS_ALLOWED;
 
-          case 9:
+            if (separateByDot) word = ".";
+
+          case 10:
             output = sampleFormatTweet(tweets);
 
             if (!(!output || !output.hasOwnProperty("text"))) {
-              _context2.next = 12;
+              _context2.next = 13;
               break;
             }
 
             return _context2.abrupt('return', false);
 
-          case 12:
+          case 13:
             text = output.text;
             id = output.id;
 
-          case 14:
+          case 15:
             if (discardIds.includes(id) || // Ignore repeated tweet for special discard
             (text.includes("@") || text.includes("#")) && specialDiscardsLeft-- > 0) {
-              _context2.next = 9;
+              _context2.next = 10;
               break;
             }
 
-          case 15:
+          case 16:
             if (text) {
-              _context2.next = 17;
+              _context2.next = 18;
               break;
             }
 
             return _context2.abrupt('return', false);
 
-          case 17:
+          case 18:
             _context2.t0 = searchMode[0];
-            _context2.next = _context2.t0 === 1 ? 20 : _context2.t0 === 2 ? 22 : _context2.t0 === 3 ? 26 : 28;
+            _context2.next = _context2.t0 === 1 ? 21 : _context2.t0 === 2 ? 23 : _context2.t0 === 3 ? 27 : 29;
             break;
 
-          case 20:
+          case 21:
             output = _helpers2.default.strUntil(text, word, maxLen);
-            return _context2.abrupt('break', 29);
+            return _context2.abrupt('break', 30);
 
-          case 22:
+          case 23:
             // Be more permissive if necessary; adjust for no. of retries left
             maxLen -= (_constants2.default.THIRD_2_RETRIES_ALLOWED - searchMode[1]) * 2;
             minLen = _helpers2.default.randomDiscrete(Math.max(6, maxLen), 1);
 
             output = _helpers2.default.strBetween(text, word, minLen, maxForcedLen);
-            return _context2.abrupt('break', 29);
+            return _context2.abrupt('break', 30);
 
-          case 26:
+          case 27:
             output = _helpers2.default.strFrom(text, word, maxLen);
-            return _context2.abrupt('break', 29);
-
-          case 28:
-            output = "";
+            return _context2.abrupt('break', 30);
 
           case 29:
+            output = "";
+
+          case 30:
             if (!output) {
-              _context2.next = 9;
+              _context2.next = 10;
               break;
             }
 
-          case 30:
+          case 31:
 
             output.id = id;
             console.log("(*", searchMode[0], " - ", id, "*)", output.text);
             return _context2.abrupt('return', output.text === " " ? false : output);
 
-          case 33:
+          case 34:
           case 'end':
             return _context2.stop();
         }
@@ -284,7 +287,7 @@ var getTweetThird = function () {
 
 var generateTweet = function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(aimShortTweet) {
-    var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, firstOut, secondOut, thirdOut, i, retriesLeft, numWords1, numWords2, numWords3, len1, len2, len3, totalWords, totalLen, pass;
+    var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, firstOut, secondOut, thirdOut, i, retriesLeft, separateByDot, numWords1, numWords2, numWords3, len1, len2, len3, totalWords, totalLen, pass;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
@@ -299,31 +302,33 @@ var generateTweet = function () {
             secondOut = "";
             thirdOut = "";
             i = 0;
+            // Get a random word within the first 25 twitter words.
 
             do {
-              i = _helpers2.default.randomDiscrete(_twitterWords2.default.length * 2, 0, -5);
-            } while (i > _twitterWords2.default.length - 1);
+              i = _helpers2.default.randomDiscrete(40, 0, -2);
+            } while (i > _constants2.default.LAST_HOOK_TWITTER_WORD);
             word = _twitterWords2.default[i];
 
             retriesLeft = _constants2.default.THIRD_1_RETRIES_ALLOWED;
+            separateByDot = _helpers2.default.random(1) < _constants2.default.SEPARATE_BY_DOT_CHANCE && !aimShortTweet;
 
-          case 12:
+          case 13:
             _word = "";
             word_ = "";
-            _context3.next = 16;
-            return getTweetThird(word, [1, retriesLeft], [], aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN);
+            _context3.next = 17;
+            return getTweetThird(word, [1, retriesLeft], [], separateByDot, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN);
 
-          case 16:
+          case 17:
             firstOut = _context3.sent;
 
             if (firstOut) {
-              _context3.next = 19;
+              _context3.next = 20;
               break;
             }
 
-            return _context3.abrupt('continue', 25);
+            return _context3.abrupt('continue', 26);
 
-          case 19:
+          case 20:
             text1 = firstOut.text;
             nextWord = firstOut.nextWord;
             // Check if we can have a pair of common words to hook the next part.
@@ -333,25 +338,25 @@ var generateTweet = function () {
             if (word_ === "i") word_ = "I";
             // If we don't have any result retry up to THIRD_1_RETRIES_ALLOWED times.
 
-          case 25:
+          case 26:
             if (retriesLeft-- > 0 && !firstOut) {
-              _context3.next = 12;
+              _context3.next = 13;
               break;
             }
 
-          case 26:
+          case 27:
             if (firstOut) {
-              _context3.next = 28;
+              _context3.next = 29;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 28:
+          case 29:
             tweet += text1;
             // If both neighbour words could work, choose the most common one.
-            // Always stick to a single word if short tweet.
-            if (!aimShortTweet) {
+            // Always stick to a single word if short tweet or if hooking by a dot.
+            if (!aimShortTweet && !separateByDot) {
               if (_word.index && _word.index > word_.index) {
                 word = _word.word + " " + word;
               } else if (word_.index) {
@@ -362,23 +367,23 @@ var generateTweet = function () {
 
             retriesLeft = _constants2.default.THIRD_2_RETRIES_ALLOWED;
 
-          case 31:
+          case 32:
             _word2 = "";
             word2_ = "";
-            _context3.next = 35;
-            return getTweetThird(word, [2, retriesLeft], firstOut.id, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_FORCED_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_FORCED_LEN);
+            _context3.next = 36;
+            return getTweetThird(word, [2, retriesLeft], firstOut.id, separateByDot, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_FORCED_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_FORCED_LEN);
 
-          case 35:
+          case 36:
             secondOut = _context3.sent;
 
             if (secondOut) {
-              _context3.next = 38;
+              _context3.next = 39;
               break;
             }
 
-            return _context3.abrupt('continue', 45);
+            return _context3.abrupt('continue', 46);
 
-          case 38:
+          case 39:
             text2 = secondOut.text;
             word2 = secondOut.word;
             nextWord2 = secondOut.nextWord;
@@ -389,21 +394,21 @@ var generateTweet = function () {
             if (word2_ === "i") word2_ = "I";
             // If we don't have any result retry up to THIRD_2_RETRIES_ALLOWED times.
 
-          case 45:
+          case 46:
             if (retriesLeft-- > 0 && !secondOut) {
-              _context3.next = 31;
+              _context3.next = 32;
               break;
             }
 
-          case 46:
+          case 47:
             if (secondOut) {
-              _context3.next = 48;
+              _context3.next = 49;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 48:
+          case 49:
             tweet += text2;
             // If both neighbour words could work, choose the most common one.
             // Always stick to a single word if short tweet.
@@ -418,11 +423,11 @@ var generateTweet = function () {
 
             retriesLeft = _constants2.default.THIRD_3_RETRIES_ALLOWED;
 
-          case 51:
-            _context3.next = 53;
-            return getTweetThird(word2, [3, retriesLeft], [firstOut.id, secondOut.id], aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN);
+          case 52:
+            _context3.next = 54;
+            return getTweetThird(word2, [3, retriesLeft], [firstOut.id, secondOut.id], false, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN);
 
-          case 53:
+          case 54:
             thirdOut = _context3.sent;
 
             // Ending with a question tends to look awkward unless it is a
@@ -432,21 +437,21 @@ var generateTweet = function () {
             }
             // If we don't have any result retry up to THIRD_3_RETRIES_ALLOWED times.
 
-          case 55:
+          case 56:
             if (retriesLeft-- > 0 && !thirdOut) {
-              _context3.next = 51;
+              _context3.next = 52;
               break;
             }
 
-          case 56:
+          case 57:
             if (thirdOut) {
-              _context3.next = 58;
+              _context3.next = 59;
               break;
             }
 
             return _context3.abrupt('return', false);
 
-          case 58:
+          case 59:
             text3 = thirdOut.text;
             tweet += text3;
 
@@ -478,7 +483,7 @@ var generateTweet = function () {
             }
             return _context3.abrupt('return', pass && tweet.length < _constants2.default.MAX_TWEET_CHARS ? tweet : false);
 
-          case 74:
+          case 75:
           case 'end':
             return _context3.stop();
         }
@@ -486,7 +491,7 @@ var generateTweet = function () {
     }, _callee3, undefined);
   }));
 
-  return function generateTweet(_x10) {
+  return function generateTweet(_x11) {
     return _ref3.apply(this, arguments);
   };
 }();
@@ -534,7 +539,7 @@ var uploadMediaToTwitter = function () {
     }, _callee4, undefined);
   }));
 
-  return function uploadMediaToTwitter(_x11, _x12) {
+  return function uploadMediaToTwitter(_x12, _x13) {
     return _ref4.apply(this, arguments);
   };
 }();
@@ -602,7 +607,7 @@ var generateGif = function () {
     }, _callee5, undefined);
   }));
 
-  return function generateGif(_x13) {
+  return function generateGif(_x14) {
     return _ref5.apply(this, arguments);
   };
 }();
@@ -639,7 +644,7 @@ var generateImgur = function () {
                 }, _callee6, undefined);
               }));
 
-              return function req(_x15) {
+              return function req(_x16) {
                 return _ref7.apply(this, arguments);
               };
             }();
@@ -751,7 +756,7 @@ var generateImgur = function () {
     }, _callee7, undefined);
   }));
 
-  return function generateImgur(_x14) {
+  return function generateImgur(_x15) {
     return _ref6.apply(this, arguments);
   };
 }();

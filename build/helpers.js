@@ -100,6 +100,8 @@ exports.default = {
 
     word = this.appendSpaces(word);
     var _str = _underscore2.default.strLeft(str, word);
+    // Don't separate by dot if it's an acronym.
+    if (_str.charAt(_str.length - 2) === ".") return "";
     var nextWord = _underscore2.default.strRight(str, word);
     nextWord = _underscore2.default.strLeft(nextWord, " ");
     var foundWithin = this.numWords(_str);
@@ -130,7 +132,7 @@ exports.default = {
     var ar = this.splitInWords(_str);
     do {
       var closingWord = ar[nextWordAt];
-      if (_twitterWords2.default.includes(closingWord)) {
+      if (_twitterWords2.default.slice(0, _constants2.default.LAST_HOOK_TWITTER_WORD).includes(closingWord)) {
         _str = _underscore2.default.strLeft(_str, this.appendSpaces(closingWord));
         if (_str !== str) {
           var nextWord = _underscore2.default.strRightBack(str, closingWord);

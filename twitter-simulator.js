@@ -83,6 +83,7 @@ const getTweetThird = async (
   searchMode,
   // Prevent the same tweet from being picked
   discardIds = [],
+  separateByDot = false,
   maxLen = C.MAX_TWEET_THIRD_LEN,
   maxForcedLen = C.MAX_TWEET_THIRD_FORCED_LEN,
 ) => {
@@ -128,6 +129,7 @@ const getTweetThird = async (
   // Tweets with mentions or hashtags tend to lead to unfunnier results,
   // so slightly discourage them.
   let specialDiscardsLeft = C.SPECIAL_CHAR_DISCARDS_ALLOWED;
+  if (separateByDot) word = ".";
 
   do {
     do {
@@ -174,12 +176,15 @@ const generateTweet = async (aimShortTweet) => {
   let secondOut = "";
   let thirdOut = "";
   let i = 0;
+  // Get a random word within the first 25 twitter words.
   do {
-    i = H.randomDiscrete((twitterwords.length * 2), 0, -5);
-  } while (i > twitterwords.length - 1);
+    i = H.randomDiscrete(40, 0, -2);
+  } while (i > C.LAST_HOOK_TWITTER_WORD);
   word = twitterwords[i];
 
   let retriesLeft = C.THIRD_1_RETRIES_ALLOWED;
+  let separateByDot =
+    H.random(1) < C.SEPARATE_BY_DOT_CHANCE && !aimShortTweet;
   do {
     _word = "";
     word_ = "";
@@ -187,6 +192,7 @@ const generateTweet = async (aimShortTweet) => {
       word,
       [1, retriesLeft],
       [],
+      separateByDot,
       aimShortTweet ? C.MAX_TWEET_THIRD_LEN_SHORT : C.MAX_TWEET_THIRD_LEN
     );
     if (!firstOut) continue;
@@ -202,8 +208,8 @@ const generateTweet = async (aimShortTweet) => {
   if (!firstOut) return false;
   tweet += text1;
   // If both neighbour words could work, choose the most common one.
-  // Always stick to a single word if short tweet.
-  if (!aimShortTweet) {
+  // Always stick to a single word if short tweet or if hooking by a dot.
+  if (!aimShortTweet && !separateByDot) {
     if (_word.index && _word.index > word_.index) {
       word = _word.word + " " + word;
     } else if (word_.index) {
@@ -220,6 +226,7 @@ const generateTweet = async (aimShortTweet) => {
       word,
       [2, retriesLeft],
       firstOut.id,
+      separateByDot,
       aimShortTweet ? C.MAX_TWEET_THIRD_LEN_SHORT : C.MAX_TWEET_THIRD_LEN,
       aimShortTweet ? C.MAX_TWEET_THIRD_FORCED_LEN_SHORT : C.MAX_TWEET_THIRD_FORCED_LEN
     );
@@ -253,6 +260,7 @@ const generateTweet = async (aimShortTweet) => {
       word2,
       [3, retriesLeft],
       [firstOut.id, secondOut.id],
+      false,
       aimShortTweet ? C.MAX_TWEET_THIRD_LEN_SHORT : C.MAX_TWEET_THIRD_LEN
     );
     // Ending with a question tends to look awkward unless it is a
