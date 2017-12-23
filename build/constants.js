@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
   TIME_BETWEEN_TWEETS: 60000 * 20,
 
-  SHORT_TWEET_CHANCE: 0.3,
-  SEPARATE_BY_DOT_CHANCE: 0.3,
+  SHORT_TWEET_CHANCE: 0.35,
+  SEPARATE_BY_DOT_CHANCE: 0.35,
   /* Temporarily turn to 0. With the current search method, they tend to
   ruin the tweet if anything. Might come up with something better soon. */
   GIF_REGULAR_CHANCE: 0,
