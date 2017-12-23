@@ -164,7 +164,7 @@ const getTweetThird = async (
   return output.text === " " ? false : output;
 };
 
-const generateTweet = async () => {
+const generateTweet = async (aimShortTweet) => {
   let tweet = "";
   let text1 = "", text2 = "", text3 = "";
   let word = "", _word = "", word_ = "";
@@ -183,7 +183,12 @@ const generateTweet = async () => {
   do {
     _word = "";
     word_ = "";
-    firstOut = await getTweetThird(word, [1, retriesLeft]);
+    firstOut = await getTweetThird(
+      word,
+      [1, retriesLeft],
+      [],
+      aimShortTweet ? C.MAX_TWEET_THIRD_LEN_SHORT : C.MAX_TWEET_THIRD_LEN
+    );
     if (!firstOut) continue;
     text1 = firstOut.text;
     nextWord = firstOut.nextWord;
@@ -192,23 +197,32 @@ const generateTweet = async () => {
     word_ = H.hasWordInArray(nextWord, 1, twitterwords);
     if (_word === "i") _word = "I";
     if (word_ === "i") word_ = "I";
-    // If we don't have any result retry up to one time.
+    // If we don't have any result retry up to THIRD_1_RETRIES_ALLOWED times.
   } while (retriesLeft -- > 0 && !firstOut);
   if (!firstOut) return false;
   tweet += text1;
-  // If both neighbout words could work, choose the most common one.
-  if (_word.index && _word.index > word_.index) {
-    word = _word.word + " " + word;
-  } else if (word_.index) {
-    word = word + " " + word_.word;
-    tweet += (word_.word + " ");
+  // If both neighbour words could work, choose the most common one.
+  // Always stick to a single word if short tweet.
+  if (!aimShortTweet) {
+    if (_word.index && _word.index > word_.index) {
+      word = _word.word + " " + word;
+    } else if (word_.index) {
+      word = word + " " + word_.word;
+      tweet += (word_.word + " ");
+    }
   }
 
   retriesLeft = C.THIRD_2_RETRIES_ALLOWED;
   do {
     _word2 = "";
     word2_ = "";
-    secondOut = await getTweetThird(word, [2, retriesLeft], firstOut.id);
+    secondOut = await getTweetThird(
+      word,
+      [2, retriesLeft],
+      firstOut.id,
+      aimShortTweet ? C.MAX_TWEET_THIRD_LEN_SHORT : C.MAX_TWEET_THIRD_LEN,
+      aimShortTweet ? C.MAX_TWEET_THIRD_FORCED_LEN_SHORT : C.MAX_TWEET_THIRD_FORCED_LEN
+    );
     if (!secondOut) continue;
     text2 = secondOut.text;
     word2 = secondOut.word;
@@ -218,16 +232,19 @@ const generateTweet = async () => {
     word2_ = H.hasWordInArray(nextWord2, 1, twitterwords);
     if (_word2 === "i") _word2 = "I";
     if (word2_ === "i") word2_ = "I";
-    // If we don't have any result retry up to three times.
+    // If we don't have any result retry up to THIRD_2_RETRIES_ALLOWED times.
   } while (retriesLeft -- > 0 && !secondOut);
   if (!secondOut) return false;
   tweet += text2;
-  // If both neighbout words could work, choose the most common one.
-  if (_word2.index && _word2.index > word_.index) {
-    word2 = _word2.word + " " + word2;
-  } else if (word2_.index) {
-    word2 = word2 + " " + word2_.index;
-    tweet += (word2_.index +  " ");
+  // If both neighbour words could work, choose the most common one.
+  // Always stick to a single word if short tweet.
+  if (!aimShortTweet) {
+    if (_word2.index && _word2.index > word_.index) {
+      word2 = _word2.word + " " + word2;
+    } else if (word2_.index) {
+      word2 = word2 + " " + word2_.index;
+      tweet += (word2_.index +  " ");
+    }
   }
 
   retriesLeft = C.THIRD_3_RETRIES_ALLOWED;
@@ -235,7 +252,8 @@ const generateTweet = async () => {
     thirdOut = await getTweetThird(
       word2,
       [3, retriesLeft],
-      [firstOut.id, secondOut.id]
+      [firstOut.id, secondOut.id],
+      aimShortTweet ? C.MAX_TWEET_THIRD_LEN_SHORT : C.MAX_TWEET_THIRD_LEN
     );
     // Ending with a question tends to look awkward unless it is a
     // sentence on its own.
@@ -245,7 +263,7 @@ const generateTweet = async () => {
     ) {
       thirdOut = null;
     }
-    // If we don't have any result retry up to three times.
+    // If we don't have any result retry up to THIRD_3_RETRIES_ALLOWED times.
   } while (retriesLeft -- > 0 && !thirdOut);
   if (!thirdOut) return false;
   text3 = thirdOut.text;
@@ -412,9 +430,10 @@ const postTweet = async () => {
   let tweet = false;
   let mediaId = false;
   let rand = H.random(1);
+  let shortTweet = H.random(1) < C.SHORT_TWEET_CHANCE;
   do {
     try {
-      tweet = await generateTweet();
+      tweet = await generateTweet(shortTweet);
       if (!tweet) continue;
       if (
         H.containsMediaWord(tweet) ||
@@ -449,9 +468,10 @@ const testTweet = async () => {
   let tweet = false;
   let mediaId = false;
   let rand = H.random(1);
+  let shortTweet = H.random(1) < C.SHORT_TWEET_CHANCE;
   do {
     try {
-      tweet = await generateTweet();
+      tweet = await generateTweet(shortTweet);
       if (!tweet) continue;
       if (
         H.containsMediaWord(tweet) ||

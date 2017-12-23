@@ -85,12 +85,20 @@ exports.default = {
     });
   },
 
+  appendSpaces: function appendSpaces(word) {
+    if (word === ".") {
+      return word + " ";
+    } else {
+      return " " + word + " ";
+    }
+  },
+
   /* Returns falsey if no applicable match */
   /* Otherwise returns the resulting string in an object */
   strUntil: function strUntil(str, word) {
     var withinFirst = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants2.default.MAX_TWEET_CHARS;
 
-    word = " " + word + " ";
+    word = this.appendSpaces(word);
     var _str = _underscore2.default.strLeft(str, word);
     var nextWord = _underscore2.default.strRight(str, word);
     nextWord = _underscore2.default.strLeft(nextWord, " ");
@@ -103,7 +111,7 @@ exports.default = {
   strFrom: function strFrom(str, word) {
     var withinLast = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants2.default.MAX_TWEET_CHARS;
 
-    word = " " + word + " ";
+    word = this.appendSpaces(word);
     var _str = _underscore2.default.strRightBack(str, word);
     var foundWithin = this.numWords(_str);
     return _str === str || !foundWithin || foundWithin >= withinLast ? "" : { "text": _str };
@@ -115,7 +123,7 @@ exports.default = {
   {
     var beforeLast = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants2.default.MAX_TWEET_CHARS;
 
-    word = " " + word + " ";
+    word = this.appendSpaces(word);
     var _str = _underscore2.default.strRight(str, word);
     var foundBefore = this.numWords(_str);
     if (_str === str || !foundBefore || foundBefore > beforeLast) return "";
@@ -123,12 +131,12 @@ exports.default = {
     do {
       var closingWord = ar[nextWordAt];
       if (_twitterWords2.default.includes(closingWord)) {
-        _str = _underscore2.default.strLeft(_str, " " + closingWord + " ");
+        _str = _underscore2.default.strLeft(_str, this.appendSpaces(closingWord));
         if (_str !== str) {
           var nextWord = _underscore2.default.strRightBack(str, closingWord);
           nextWord = _underscore2.default.strLeft(nextWord.substr(1, nextWord.length - 1), " ");
           return {
-            "text": _str + " " + closingWord + " ",
+            "text": _str + this.appendSpaces(closingWord),
             "word": closingWord,
             "nextWord": nextWord
           };

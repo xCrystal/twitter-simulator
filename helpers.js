@@ -60,10 +60,18 @@ export default {
     });
   },
 
+  appendSpaces: function(word) {
+    if (word === ".") {
+      return word + " ";
+    } else {
+      return " " + word + " ";
+    }
+  },
+
   /* Returns falsey if no applicable match */
   /* Otherwise returns the resulting string in an object */
   strUntil: function (str, word, withinFirst = C.MAX_TWEET_CHARS) {
-    word = " " + word + " ";
+    word = this.appendSpaces(word);
     let _str = S.strLeft(str, word);
     let nextWord = S.strRight(str, word);
     nextWord = S.strLeft(nextWord, " ");
@@ -78,7 +86,7 @@ export default {
   /* Returns falsey if no applicable match */
   /* Otherwise returns the resulting string in an object */
   strFrom: function (str, word, withinLast = C.MAX_TWEET_CHARS) {
-    word = " " + word + " ";
+    word = this.appendSpaces(word);
     let _str = S.strRightBack(str, word);
     let foundWithin = this.numWords(_str);
     return (
@@ -96,7 +104,7 @@ export default {
     nextWordAt, /* translates to min length, an to ~(avg_len - 1) */
     beforeLast = C.MAX_TWEET_CHARS, /* translates to max length */
   ) {
-    word = " " + word + " ";
+    word = this.appendSpaces(word);
     let _str = S.strRight(str, word);
     let foundBefore = this.numWords(_str);
     if (_str === str || !foundBefore || foundBefore > beforeLast) return "";
@@ -104,12 +112,12 @@ export default {
     do {
       let closingWord = ar[nextWordAt];
       if (twitterwords.includes(closingWord)) {
-        _str = S.strLeft(_str, " " + closingWord + " ");
+        _str = S.strLeft(_str, this.appendSpaces(closingWord));
         if (_str !== str) {
           let nextWord = S.strRightBack(str, closingWord);
           nextWord = S.strLeft(nextWord.substr(1, nextWord.length - 1), " ");
           return {
-            "text": _str + " " + closingWord + " ",
+            "text": _str + this.appendSpaces(closingWord),
             "word": closingWord,
             "nextWord": nextWord
           };

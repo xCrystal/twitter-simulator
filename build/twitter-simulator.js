@@ -283,7 +283,7 @@ var getTweetThird = function () {
 }();
 
 var generateTweet = function () {
-  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(aimShortTweet) {
     var tweet, text1, text2, text3, word, _word, word_, word2, _word2, word2_, nextWord, nextWord2, firstOut, secondOut, thirdOut, i, retriesLeft, numWords1, numWords2, numWords3, len1, len2, len3, totalWords, totalLen, pass;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
@@ -311,7 +311,7 @@ var generateTweet = function () {
             _word = "";
             word_ = "";
             _context3.next = 16;
-            return getTweetThird(word, [1, retriesLeft]);
+            return getTweetThird(word, [1, retriesLeft], [], aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN);
 
           case 16:
             firstOut = _context3.sent;
@@ -331,7 +331,7 @@ var generateTweet = function () {
             word_ = _helpers2.default.hasWordInArray(nextWord, 1, _twitterWords2.default);
             if (_word === "i") _word = "I";
             if (word_ === "i") word_ = "I";
-            // If we don't have any result retry up to one time.
+            // If we don't have any result retry up to THIRD_1_RETRIES_ALLOWED times.
 
           case 25:
             if (retriesLeft-- > 0 && !firstOut) {
@@ -349,12 +349,15 @@ var generateTweet = function () {
 
           case 28:
             tweet += text1;
-            // If both neighbout words could work, choose the most common one.
-            if (_word.index && _word.index > word_.index) {
-              word = _word.word + " " + word;
-            } else if (word_.index) {
-              word = word + " " + word_.word;
-              tweet += word_.word + " ";
+            // If both neighbour words could work, choose the most common one.
+            // Always stick to a single word if short tweet.
+            if (!aimShortTweet) {
+              if (_word.index && _word.index > word_.index) {
+                word = _word.word + " " + word;
+              } else if (word_.index) {
+                word = word + " " + word_.word;
+                tweet += word_.word + " ";
+              }
             }
 
             retriesLeft = _constants2.default.THIRD_2_RETRIES_ALLOWED;
@@ -363,7 +366,7 @@ var generateTweet = function () {
             _word2 = "";
             word2_ = "";
             _context3.next = 35;
-            return getTweetThird(word, [2, retriesLeft], firstOut.id);
+            return getTweetThird(word, [2, retriesLeft], firstOut.id, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN, aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_FORCED_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_FORCED_LEN);
 
           case 35:
             secondOut = _context3.sent;
@@ -384,7 +387,7 @@ var generateTweet = function () {
             word2_ = _helpers2.default.hasWordInArray(nextWord2, 1, _twitterWords2.default);
             if (_word2 === "i") _word2 = "I";
             if (word2_ === "i") word2_ = "I";
-            // If we don't have any result retry up to three times.
+            // If we don't have any result retry up to THIRD_2_RETRIES_ALLOWED times.
 
           case 45:
             if (retriesLeft-- > 0 && !secondOut) {
@@ -402,19 +405,22 @@ var generateTweet = function () {
 
           case 48:
             tweet += text2;
-            // If both neighbout words could work, choose the most common one.
-            if (_word2.index && _word2.index > word_.index) {
-              word2 = _word2.word + " " + word2;
-            } else if (word2_.index) {
-              word2 = word2 + " " + word2_.index;
-              tweet += word2_.index + " ";
+            // If both neighbour words could work, choose the most common one.
+            // Always stick to a single word if short tweet.
+            if (!aimShortTweet) {
+              if (_word2.index && _word2.index > word_.index) {
+                word2 = _word2.word + " " + word2;
+              } else if (word2_.index) {
+                word2 = word2 + " " + word2_.index;
+                tweet += word2_.index + " ";
+              }
             }
 
             retriesLeft = _constants2.default.THIRD_3_RETRIES_ALLOWED;
 
           case 51:
             _context3.next = 53;
-            return getTweetThird(word2, [3, retriesLeft], [firstOut.id, secondOut.id]);
+            return getTweetThird(word2, [3, retriesLeft], [firstOut.id, secondOut.id], aimShortTweet ? _constants2.default.MAX_TWEET_THIRD_LEN_SHORT : _constants2.default.MAX_TWEET_THIRD_LEN);
 
           case 53:
             thirdOut = _context3.sent;
@@ -424,7 +430,7 @@ var generateTweet = function () {
             if (thirdOut && thirdOut.text.includes("?") && !thirdOut.text.includes(".")) {
               thirdOut = null;
             }
-            // If we don't have any result retry up to three times.
+            // If we don't have any result retry up to THIRD_3_RETRIES_ALLOWED times.
 
           case 55:
             if (retriesLeft-- > 0 && !thirdOut) {
@@ -480,7 +486,7 @@ var generateTweet = function () {
     }, _callee3, undefined);
   }));
 
-  return function generateTweet() {
+  return function generateTweet(_x10) {
     return _ref3.apply(this, arguments);
   };
 }();
@@ -528,7 +534,7 @@ var uploadMediaToTwitter = function () {
     }, _callee4, undefined);
   }));
 
-  return function uploadMediaToTwitter(_x10, _x11) {
+  return function uploadMediaToTwitter(_x11, _x12) {
     return _ref4.apply(this, arguments);
   };
 }();
@@ -596,7 +602,7 @@ var generateGif = function () {
     }, _callee5, undefined);
   }));
 
-  return function generateGif(_x12) {
+  return function generateGif(_x13) {
     return _ref5.apply(this, arguments);
   };
 }();
@@ -633,7 +639,7 @@ var generateImgur = function () {
                 }, _callee6, undefined);
               }));
 
-              return function req(_x14) {
+              return function req(_x15) {
                 return _ref7.apply(this, arguments);
               };
             }();
@@ -745,14 +751,14 @@ var generateImgur = function () {
     }, _callee7, undefined);
   }));
 
-  return function generateImgur(_x13) {
+  return function generateImgur(_x14) {
     return _ref6.apply(this, arguments);
   };
 }();
 
 var postTweet = function () {
   var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
-    var tweet, mediaId, rand;
+    var tweet, mediaId, rand, shortTweet;
     return regeneratorRuntime.wrap(function _callee8$(_context8) {
       while (1) {
         switch (_context8.prev = _context8.next) {
@@ -760,104 +766,105 @@ var postTweet = function () {
             tweet = false;
             mediaId = false;
             rand = _helpers2.default.random(1);
+            shortTweet = _helpers2.default.random(1) < _constants2.default.SHORT_TWEET_CHANCE;
 
-          case 3:
-            _context8.prev = 3;
-            _context8.next = 6;
-            return generateTweet();
+          case 4:
+            _context8.prev = 4;
+            _context8.next = 7;
+            return generateTweet(shortTweet);
 
-          case 6:
+          case 7:
             tweet = _context8.sent;
 
             if (tweet) {
-              _context8.next = 9;
+              _context8.next = 10;
               break;
             }
 
-            return _context8.abrupt('continue', 36);
+            return _context8.abrupt('continue', 37);
 
-          case 9:
+          case 10:
             if (_helpers2.default.containsMediaWord(tweet) || tweet.substr(tweet.length - 2).includes(":")) {
               rand = _helpers2.default.random(_constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE);
             }
 
             if (!(rand < _constants2.default.GIF_REGULAR_CHANCE)) {
-              _context8.next = 16;
+              _context8.next = 17;
               break;
             }
 
-            _context8.next = 13;
+            _context8.next = 14;
             return generateGif(tweet);
 
-          case 13:
+          case 14:
             mediaId = _context8.sent;
-            _context8.next = 20;
+            _context8.next = 21;
             break;
 
-          case 16:
+          case 17:
             if (!(rand < _constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE)) {
-              _context8.next = 20;
+              _context8.next = 21;
               break;
             }
 
-            _context8.next = 19;
+            _context8.next = 20;
             return generateImgur(tweet);
 
-          case 19:
+          case 20:
             mediaId = _context8.sent;
 
-          case 20:
+          case 21:
             if (!(tweet && !mediaId)) {
-              _context8.next = 25;
+              _context8.next = 26;
               break;
             }
 
-            _context8.next = 23;
+            _context8.next = 24;
             return T.post("statuses/update", {
               "status": tweet
             });
 
-          case 23:
-            _context8.next = 28;
+          case 24:
+            _context8.next = 29;
             break;
 
-          case 25:
+          case 26:
             if (!(tweet && mediaId)) {
-              _context8.next = 28;
+              _context8.next = 29;
               break;
             }
 
-            _context8.next = 28;
+            _context8.next = 29;
             return T.post("statuses/update", {
               "status": tweet,
               "media_ids": mediaId
             });
 
-          case 28:
+          case 29:
             ;
             console.log("(*** TWEET ***)", tweet);
-            _context8.next = 36;
+            _context8.next = 37;
             break;
 
-          case 32:
-            _context8.prev = 32;
-            _context8.t0 = _context8['catch'](3);
+          case 33:
+            _context8.prev = 33;
+            _context8.t0 = _context8['catch'](4);
 
             console.error("ERROR: ", _context8.t0);
             tweet = false;
 
-          case 36:
+          case 37:
             if (!tweet) {
-              _context8.next = 3;
+              _context8.next = 4;
               break;
             }
 
-          case 37:
+          case 38:
           case 'end':
             return _context8.stop();
         }
       }
-    }, _callee8, undefined, [[3, 32]]);
+    }, _callee8, undefined, [[4, 33]]);
   }));
 
   return function postTweet() {
@@ -867,7 +874,7 @@ var postTweet = function () {
 
 var testTweet = function () {
   var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
-    var tweet, mediaId, rand;
+    var tweet, mediaId, rand, shortTweet;
     return regeneratorRuntime.wrap(function _callee9$(_context9) {
       while (1) {
         switch (_context9.prev = _context9.next) {
@@ -875,76 +882,77 @@ var testTweet = function () {
             tweet = false;
             mediaId = false;
             rand = _helpers2.default.random(1);
+            shortTweet = _helpers2.default.random(1) < _constants2.default.SHORT_TWEET_CHANCE;
 
-          case 3:
-            _context9.prev = 3;
-            _context9.next = 6;
-            return generateTweet();
+          case 4:
+            _context9.prev = 4;
+            _context9.next = 7;
+            return generateTweet(shortTweet);
 
-          case 6:
+          case 7:
             tweet = _context9.sent;
 
             if (tweet) {
-              _context9.next = 9;
+              _context9.next = 10;
               break;
             }
 
-            return _context9.abrupt('continue', 27);
+            return _context9.abrupt('continue', 28);
 
-          case 9:
+          case 10:
             if (_helpers2.default.containsMediaWord(tweet) || tweet.substr(tweet.length - 2).includes(":")) {
               rand = _helpers2.default.random(_constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE);
             }
 
             if (!(rand < _constants2.default.GIF_REGULAR_CHANCE)) {
-              _context9.next = 16;
+              _context9.next = 17;
               break;
             }
 
-            _context9.next = 13;
+            _context9.next = 14;
             return generateGif(tweet);
 
-          case 13:
+          case 14:
             mediaId = _context9.sent;
-            _context9.next = 20;
+            _context9.next = 21;
             break;
 
-          case 16:
+          case 17:
             if (!(rand < _constants2.default.GIF_REGULAR_CHANCE + _constants2.default.IMGUR_REGULAR_CHANCE)) {
-              _context9.next = 20;
+              _context9.next = 21;
               break;
             }
 
-            _context9.next = 19;
+            _context9.next = 20;
             return generateImgur(tweet);
 
-          case 19:
+          case 20:
             mediaId = _context9.sent;
 
-          case 20:
+          case 21:
             console.log("(*** TWEET ***)", tweet);
-            _context9.next = 27;
+            _context9.next = 28;
             break;
 
-          case 23:
-            _context9.prev = 23;
-            _context9.t0 = _context9['catch'](3);
+          case 24:
+            _context9.prev = 24;
+            _context9.t0 = _context9['catch'](4);
 
             console.error("ERROR: ", _context9.t0);
             tweet = false;
 
-          case 27:
+          case 28:
             if (!tweet) {
-              _context9.next = 3;
+              _context9.next = 4;
               break;
             }
 
-          case 28:
+          case 29:
           case 'end':
             return _context9.stop();
         }
       }
-    }, _callee9, undefined, [[3, 23]]);
+    }, _callee9, undefined, [[4, 24]]);
   }));
 
   return function testTweet() {
